@@ -1,0 +1,94 @@
+\documentclass[a4paper,10pt]{memoir}
+\usepackage[italian]{babel}
+
+% import package
+\usepackage{FrontespizioSapienza}
+
+% declare info
+\FSSTitolo{Ottimizzazione delle risorse nell'uso di servizi in background in SeismoCloud per Android}
+\FSSFacolta{Facoltà di Ingegneria dell'Informazione, Informatica e Statistica}
+\FSSCorso{Informatica}
+
+\FSSCandidato{Enrico Bassetti}
+\FSSMatricola{1401568}
+\FSSRelatore{Emanuele Panizzi}
+\FSSCorrelatore{}
+\FSSAnnoAccademico{2016/2017}
+
+\begin{document}
+
+\frontmatter
+
+% print title
+\maketitle
+\cleardoublepage
+
+% rest of the document
+\begin{abstract}
+	\thispagestyle{plain}
+	Sommario della tesi.
+\end{abstract}
+\cleardoublepage
+
+\tableofcontents
+\cleardoublepage
+
+\mainmatter
+
+\chapter{Introduzione}
+
+\section{Il progetto SeismoCloud}
+
+Introduzione a SeismoCloud.
+
+\chapter{Ottimizzazione del consumo di risorse}
+
+Qui si parla dell'ottimizzazione del consumo energetico, specificando l'algoritmo utilizzato per il follow della curva di scarica, le politiche di spegnimento (con algoritmo di backoff) in caso di posizione non utile o mancanza di dati utili al rilevamento (prima posizione, rilevato movimento localizzazione) o stato batteria/connessione.
+
+Si spiega anche l'attivazione programmata del magnetometro dopo l'attività dell'accelerometro, inizialmente pensata per risparmiare CPU ed energia, e come questo meccanismo sia stato dismesso poiché effettivamente non comportava nessun risparmio energetico (il sistema mag+accel è sempre attivo).
+
+\section{Ottimizzazione energetica: i sensori}
+
+\section{Ottimizzazione energetica: eliminare lo spreco}
+
+\section{Ottimizzazione energetica: la curva di scarica}
+
+\section{Ottimizzazione del processore: la comunicazione con il front-end}
+
+Qui si descrive la politica utilizzata per mantere l'applicazione attiva (notifica permanente) poiché Android pone le applicazioni in sleep. Si spiega anche il wakelock sulla CPU, la sospensione dell'aggiornamento dati in background delle activity quando non sono in vista.
+
+\section{Ottimizzazione della rete: MQTT}
+
+Si spiega come l'introduzione dell'MQTT abbia ridotto il carico sulla rete del telefono per lo scambio dati con il server.
+
+\section{Ottimizzazione della rete: Pushback}
+
+Parlare del meccanismo di Pushback per l'invio dei dati (ad esempio survey) in background in modo ottimizzato in caso di problem di rete.
+
+\section{Ottimizzazione dell'uso di memoria nel codice}
+
+Qui si descrive la politica utilizzata, nella costruzione del codice, per minimizzare lo spreco di memoria (esempio: media mobile).
+
+%
+%\chapter{Sviluppo e test}
+%
+%Si spiega l'adozione di particolari meccanismi per la gestione ottimizzata del processo di sviluppo:
+%
+%\begin{itemize}
+%\item Utilizzo della libreria ACRA per l'immediata segnalazione di errori della app (da produzione)
+%\item Utilizzo della libreria LeakCanary per la ricerca di memory leak
+%\item Utilizzo delle librerie Parceler e Android Annotations per ridurre la quantità di codice ridondante
+%\item Sistemi di controllo versione: branch per funzionalità, sviluppo parallelo
+%\item Continuos integration per la verifica dei build ed instrumentation test
+%\item Verifica del codice tramite SonarQube per aderenza agli standard Java/Android e risultati di analisi statica del codice
+%\end{itemize}
+
+\chapter{Sviluppi futuri}
+
+\begin{itemize}
+\item Utilizzo di un sistema di spegnimento controllato dal server per l'ottimizzazione geografica
+\item Utilizzo di sensori dedicati (es. Samsung Significant Motion Sensor) per il wake-up
+\item Riscrittura parti critiche in codice nativo per l'esecuzione ottimizzata e rapida (con conseguente aumento del periodo di idle del telefono)
+\end{itemize}
+
+\end{document}
