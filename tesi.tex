@@ -43,15 +43,17 @@ Introduzione a SeismoCloud.
 
 \chapter{Ottimizzazione del consumo di risorse}
 
-Qui si parla dell'ottimizzazione del consumo energetico, specificando l'algoritmo utilizzato per il follow della curva di scarica, le politiche di spegnimento (con algoritmo di backoff) in caso di posizione non utile o mancanza di dati utili al rilevamento (prima posizione, rilevato movimento localizzazione) o stato batteria/connessione.
+\section{Ottimizzazione energetica: i contesti di attivazione}
 
-Si spiega anche l'attivazione programmata del magnetometro dopo l'attività dell'accelerometro, inizialmente pensata per risparmiare CPU ed energia, e come questo meccanismo sia stato dismesso poiché effettivamente non comportava nessun risparmio energetico (il sistema mag+accel è sempre attivo).
+Qui si parla delle politiche di spegnimento (con algoritmo di backoff) in caso di posizione non utile o mancanza di dati utili al rilevamento (prima posizione, rilevato movimento localizzazione) o stato batteria/connessione.
 
 \section{Ottimizzazione energetica: i sensori}
 
-\section{Ottimizzazione energetica: eliminare lo spreco}
+Si spiega anche l'attivazione programmata del magnetometro dopo l'attività dell'accelerometro, inizialmente pensata per risparmiare CPU ed energia, e come questo meccanismo sia stato dismesso poiché effettivamente non comportava nessun risparmio energetico (il sistema mag+accel è sempre attivo).
 
 \section{Ottimizzazione energetica: la curva di scarica}
+
+Qui parlo dell'algoritmo che segue la curva di scarica. Tips: mostrare i dati provenienti dal database con interrogazioni statistiche
 
 \section{Ottimizzazione del processore: la comunicazione con il front-end}
 
@@ -59,15 +61,15 @@ Qui si descrive la politica utilizzata per mantere l'applicazione attiva (notifi
 
 \section{Ottimizzazione della rete: MQTT}
 
-Si spiega come l'introduzione dell'MQTT abbia ridotto il carico sulla rete del telefono per lo scambio dati con il server.
+Si spiega come l'introduzione dell'MQTT abbia ridotto il carico sulla rete per lo scambio dati con il server.
 
 \section{Ottimizzazione della rete: Pushback}
 
-Parlare del meccanismo di Pushback per l'invio dei dati (ad esempio survey) in background in modo ottimizzato in caso di problem di rete.
+Parlare del meccanismo di Pushback per l'invio dei dati (ad esempio survey) in background in modo ottimizzato in caso di problemi di rete (invio asincrono).
 
 \section{Ottimizzazione dell'uso di memoria nel codice}
 
-Qui si descrive la politica utilizzata, nella costruzione del codice, per minimizzare lo spreco di memoria (esempio: media mobile).
+Qui si descrive la politica utilizzata, nella costruzione del codice, per minimizzare lo spreco di memoria (esempio: media/varianza mobile).
 
 %
 %\chapter{Sviluppo e test}
