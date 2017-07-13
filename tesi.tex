@@ -5,6 +5,13 @@
 % import package
 \usepackage{FrontespizioSapienza}
 
+\renewcommand\chapterheadstart{}
+\renewcommand\printchaptername{}
+\renewcommand\chapternamenum{}
+\renewcommand\printchapternum{}
+\renewcommand\afterchapternum{}
+\renewcommand\printchaptertitle[1]{\chaptitlefont \thechapter. \space #1}
+
 % declare info
 \FSSTitolo{Ottimizzazione delle risorse nell'uso di servizi in background in SeismoCloud per Android}
 \FSSFacolta{Facoltà di Ingegneria dell'Informazione, Informatica e Statistica}
@@ -16,9 +23,12 @@
 \FSSCorrelatore{}
 \FSSAnnoAccademico{2016/2017}
 
-\begin{document}
 
+\begin{document}
+  
+  
 \frontmatter
+
 
 % print title
 \maketitle
@@ -36,6 +46,8 @@
 
 \mainmatter
 
+%\setlength{\intextsep}{1pt}%
+
 \chapter{Introduzione}
 
 \section{I terremoti e la loro origine}
@@ -43,25 +55,29 @@
 
 \begin{wrapfigure}{r}{0.30\textwidth}
 \label{fig:litosfera}
-\centering
 \includegraphics[width=0.30\textwidth]{introduzione/oceanic_spreading}
 \end{wrapfigure}
 
 La Terra è formata, nei primi 200 km di bordo esterno, da una zona chiamata \textit{litosfera}, di cui fa parte la \textit{crosta terrestre} con le terre emerse ed i fondali marini/oceanici. La \textit{litosfera} è divisa in parti, chiamate \textbf{placche tettoniche}, che "gallegiano" sul \textit{mantello superiore}. Queste placche sono continuamente spinte in direzioni diverse da \textit{moti convettivi} generati dalla temperatura elevata del nucleo. La zona di confine di queste placche viene chiamata \textbf{faglia}, e presenta diverse caratteristiche a seconda delle direzioni delle placche: se due placche si avvicinano, una delle due placche verrà immersa nel mantello sotto l'altra (\textit{subduzione}); se due placche si allontanano, una nuova parte della litosfera viene generata dalla roccia fusa proveniente dal mantello; infine, se due placche si muovo nella stessa direzione ma in senso opposto, siamo in presenza di \textit{margini di scorrimento}.
 
-Il movimento delle placche nei margini, tuttavia, non è libero da attrito: a seconda del materiale, della profondità e della conformazione della roccia presente nella faglia, la faglia stessa tende ad \textbf{opporsi} al movimento delle placche, accumulando energia da attrito, la quale viene rilasciata repentinamente (al superamento della massima forza d'attrito) come energia meccanica (le cosìdette \textit{onde sismiche}) generando un \textit{terremoto} (o sisma).
-
-\begin{figure}[h]
+\begin{wrapfigure}[12]{r}{0.30\textwidth}
 \label{fig:mappafaglie}
 \caption{Mappa delle faglie italiane attive}
-\centering
-\includegraphics[width=13cm]{introduzione/mappa_faglie_italiane}
-\end{figure}
+\includegraphics[width=0.30\textwidth]{introduzione/mappa_faglie_italiane2}
+\end{wrapfigure}
 
+Il movimento delle placche nei margini, tuttavia, non è libero da attrito: a seconda del materiale, della profondità e della conformazione della roccia presente nella faglia, la faglia stessa tende ad \textbf{opporsi} al movimento delle placche, accumulando energia da attrito, la quale viene rilasciata repentinamente (al superamento della massima forza d'attrito) come energia meccanica (le cosiddette \textit{onde sismiche}) generando un \textit{terremoto} (o sisma).
 
 \section{Analisi e misura dei terremoti}
 
-Per misurare l'energia sprigionata da un evento sismico si utilizzano i \textbf{sismometri}, ovvero apparati dotati di accelerometri molto precisi, filtri e amplificatori in grado di rilevare l'accelerazione sulle tre componenti (X-Y-Z) e produrre un \textit{sismogramma} (Figura \ref{fig:sismogramma}).
+Per misurare l'energia sprigionata da un evento sismico, individuare il punto di origine (epicentro/ipocentro) e altre caratteristiche, si utilizzano i \textbf{sismometri}, ovvero apparati dotati di accelerometri molto precisi, filtri e amplificatori in grado di rilevare l'accelerazione sulle tre componenti (X-Y-Z) e produrre un \textit{sismogramma} (Figura \ref{fig:sismogramma}).
+
+\begin{figure}[p]
+\label{fig:retesensori}
+\caption{La rete IV - Italian Seismic Network}
+\centering
+\includegraphics[width=10cm]{introduzione/rete_ingv}
+\end{figure}
 
 \begin{figure}[h]
 \label{fig:sismogramma}
@@ -97,12 +113,20 @@ Come in tutte le calamità naturali (e non), abbiamo diversi ambiti da considera
 
 Nella fattispecie dei terremoti, la \textbf{previsione} è tutt'ora materiale di studio da parte del mondo scientifico (ad esempio dal nostro \textbf{Istituto Nazionale di Geofisica e Vulcanologia}, o INGV) poiché risulta impossibile capire, allo stato attuale, quando e dove accadrà il prossimo sisma \footnote{Alessandro Amato (2016). Sotto i nostri piedi. Codice edizioni, Torino. ISBN 978-8875785727}. Nel tempo, tuttavia, i vari dati raccolti riguardo ai terremoti hanno permesso di costruire delle mappe di pericolosità sismica\footnote{Pubblicate per la prima volta nel 2004 e poi aggiornate man mano: http://zonesismiche.mi.ingv.it/}, le quali indicano zone con maggiore probabilità di terremoti importanti, andando ad integrare le azioni di informazione e di formazione che fanno parte della \textbf{prevenzione}.
 
+\begin{wrapfigure}[12]{r}{0.25\textwidth}
+\centering
+\label{fig:timelinecom}
+\includegraphics[width=0.25\textwidth]{introduzione/tempi_comunicazioni}
+\end{wrapfigure}
+
 Nella gestione dell'emergenza possiamo riportare quello che avviene allo stato attuale all'accadere di un terremoto, rilevato (per l'Italia) dalla rete di sismometri di INGV: nel momento in cui un sisma viene percepito da un numero congruo di stazioni di rilevamento, il sistema effettua verifiche e calcoli e, \textbf{entro due minuti}, è in grado di fornire una prima stima della magnitudo, dell'epicentro e della profondità (dati che poi vengono comunicati alla Protezione Civile). Successivamente, \textbf{entro 5 minuti} dal sisma, tutte le stazioni di rilevamento sono utilizzate per individuare le caratteristiche del terremoto in modo più preciso. Infine, \textbf{entro 30 minuti}, una verifica manuale da parte dei tecnici e ingegneri di INGV permette di avere il dato definitivo che viene di nuovo comunicato alla Protezione Civile e al pubblico \footnote{La pubblicazione avviene sul sito del Centro Nazionale Terremoti http://cnt.rm.ingv.it/ oppure tramite le pagine ufficiali sui principali Social Network}.
 
 \section{Il progetto SeismoCloud}
 
 Il progetto SeismoCloud nasce dalla collaborazione dall'\textbf{Università degli Studi di Roma "La Sapienza"} e l'\textbf{Istituto Nazionale di Geofisica e Vulcanologia}. L'obiettivo di questo progetto è quello di implementare un sistema di \textbf{early warning} in \textit{crowdsourcing}\footnote{Un sistema si dice in \textit{crowdsourcing} quando i dati per il suo funzionamento vengono forniti dagli stessi utenti} per i terremoti, in grado di inserirsi nel \textit{gap} presente dal momento in cui il terremoto accade, al momento in cui INGV è in grado di individuarlo. Lo scopo del sistema quindi è di individuare i terremoti \textit{in tempo reale}, ovvero alla loro apparizione nell'ipocentro, ed \textbf{anticipare} l'onda sismica (che viaggia, mediamente, ad una velocità di 5 km/s) avvertendo la popolazione nel raggio di azione del terremoto.
 Essendo un sistema in \textit{crowdsourcing}, i dati della rete provengono dagli utenti; sono disponibili applicazioni per smartphones (Android, iOS) e dispositivi \textit{Internet of Things} (Arduino, NodeMCU, Raspberry PI) in grado di collezionare, con apposito sensore, i dati di accelerazione nei tre assi (X, Y, e Z). Data la poca precisione di questi sensori in relazione ai sensori della Rete Sismica Nazionale, il sistema di valutazione di SeismoCloud prende in considerazione la quantità di rilevazioni.
+
+\pagebreak
 
 \section{Architettura del sistema}
 
