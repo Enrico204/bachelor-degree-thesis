@@ -5,13 +5,6 @@
 % import package
 \usepackage{FrontespizioSapienza}
 
-\renewcommand\chapterheadstart{}
-\renewcommand\printchaptername{}
-\renewcommand\chapternamenum{}
-\renewcommand\printchapternum{}
-\renewcommand\afterchapternum{}
-\renewcommand\printchaptertitle[1]{\chaptitlefont \thechapter. \space #1}
-
 % declare info
 \FSSTitolo{Ottimizzazione delle risorse nell'uso di servizi in background in SeismoCloud per Android}
 \FSSFacolta{Facoltà di Ingegneria dell'Informazione, Informatica e Statistica}
@@ -46,6 +39,13 @@
 
 \mainmatter
 
+\renewcommand\chapterheadstart{}
+\renewcommand\printchaptername{}
+\renewcommand\chapternamenum{}
+\renewcommand\printchapternum{}
+\renewcommand\afterchapternum{}
+\renewcommand\printchaptertitle[1]{\chaptitlefont \thechapter. \space #1}
+
 %\setlength{\intextsep}{1pt}%
 
 \chapter{Introduzione}
@@ -66,11 +66,11 @@ La Terra è formata, nei primi 200 km di bordo esterno, da una zona chiamata \te
 \includegraphics[width=0.30\textwidth]{introduzione/mappa_faglie_italiane2}
 \end{wrapfigure}
 
-Il movimento delle placche nei margini, tuttavia, non è libero da attrito: a seconda del materiale, della profondità e della conformazione della roccia presente nella faglia, la faglia stessa tende ad \textbf{opporsi} al movimento delle placche, accumulando energia da attrito, la quale viene rilasciata repentinamente (al superamento della massima forza d'attrito) come energia meccanica (le cosiddette \textit{onde sismiche}) generando un \textit{terremoto} (o sisma).
+Il movimento delle placche nei margini, tuttavia, non è libero da attrito: a seconda del materiale, della profondità e della conformazione della roccia presente nella faglia, la faglia stessa tende ad \textbf{opporsi} al movimento delle placche, accumulando energia da attrito, la quale viene rilasciata repentinamente, al superamento della massima forza d'attrito, come energia meccanica (le cosiddette \textit{onde sismiche}) generando un \textit{terremoto} (o sisma).
 
 \section{Analisi e misura dei terremoti}
 
-Per misurare l'energia sprigionata da un evento sismico, individuare il punto di origine (epicentro/ipocentro) e altre caratteristiche, si utilizzano i \textbf{sismometri}, ovvero apparati dotati di accelerometri molto precisi, filtri e amplificatori in grado di rilevare l'accelerazione sulle tre componenti (X-Y-Z) e produrre un \textit{sismogramma} (Figura \ref{fig:sismogramma}).
+Per misurare l'energia sprigionata da un evento sismico, individuare il punto di origine (epicentro/ipocentro) e altre caratteristiche dell'onda si utilizzano i \textbf{sismometri}, apparati dotati di accelerometri molto precisi, filtri e amplificatori in grado di rilevare l'accelerazione sulle tre componenti (X-Y-Z) e produrre un \textit{sismogramma} (Figura \ref{fig:sismogramma}).
 
 \begin{figure}[p]
 \label{fig:retesensori}
@@ -79,7 +79,7 @@ Per misurare l'energia sprigionata da un evento sismico, individuare il punto di
 \includegraphics[width=10cm]{introduzione/rete_ingv}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \label{fig:sismogramma}
 \caption{Esempio di sismogramma}
 \centering
@@ -92,7 +92,7 @@ L'energia sprigionata viene misurata in \textbf{magnitudo} su una scala di valut
 
 Infine possiamo distinguere il punto di origine del terremoto sotto la superficie, chiamato \textbf{epicentro}, e la proiezione di questo punto sulla superficie terrestre, chiamato \textbf{ipocentro} \footnote{Stein, Seth; Wysession, Michael (2009). An Introduction to Seismology, Earthquakes, and Earth Structure. John Wiley \& Sons. ISBN 978-1444311310}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \label{fig:epiipo}
 \caption{Epicentro, ipocentro (o focus) e faglia (\textit{fault plane})}
 \centering
@@ -108,10 +108,10 @@ Come in tutte le calamità naturali (e non), abbiamo diversi ambiti da considera
 \begin{itemize}
 \item la \textbf{prevenzione}, ovvero l'attuazione delle politiche in grado di minimizzare la probabilità che un evento accada e minimizzare il rischio all'accadere dell'evento
 \item la \textbf{previsione}, ovvero l'utilizzo di tecniche e tecnologie che permettono di indicare \textit{quando un evento accadrà} (con una certa affidabilità)
-\item la \textbf{gestione dell'emergenza} e del post-emergenza, ovvero delle azioni da mettere in capo durante e dopo il presentarsi di una calamità
+\item la \textbf{gestione dell'emergenza} e del post-emergenza, ovvero delle azioni da mettere in campo durante e dopo il presentarsi di una calamità
 \end{itemize}
 
-Nella fattispecie dei terremoti, la \textbf{previsione} è tutt'ora materiale di studio da parte del mondo scientifico (ad esempio dal nostro \textbf{Istituto Nazionale di Geofisica e Vulcanologia}, o INGV) poiché risulta impossibile capire, allo stato attuale, quando e dove accadrà il prossimo sisma \footnote{Alessandro Amato (2016). Sotto i nostri piedi. Codice edizioni, Torino. ISBN 978-8875785727}. Nel tempo, tuttavia, i vari dati raccolti riguardo ai terremoti hanno permesso di costruire delle mappe di pericolosità sismica\footnote{Pubblicate per la prima volta nel 2004 e poi aggiornate man mano: http://zonesismiche.mi.ingv.it/}, le quali indicano zone con maggiore probabilità di terremoti importanti, andando ad integrare le azioni di informazione e di formazione che fanno parte della \textbf{prevenzione}.
+Nella fattispecie dei terremoti, la \textbf{previsione} è tutt'ora materiale di studio da parte del mondo scientifico poiché risulta impossibile\footnote{Uyeda, Seiya; Nagao, Toshiyasu; Kamogawa, Masashi (2009-05-29), "Short-term earthquake prediction: Current status of seismo-electromagnetics", Tectonophysics, 470 (3–4): 205–213} prevedere, allo stato attuale, quando e dove accadrà il prossimo sisma \footnote{Alessandro Amato (2016). Sotto i nostri piedi. Codice edizioni, Torino. ISBN 978-8875785727}. Nel tempo, tuttavia, i vari dati raccolti riguardo ai terremoti hanno permesso di costruire delle mappe di pericolosità sismica\footnote{Pubblicate per la prima volta nel 2004 e poi aggiornate man mano: http://zonesismiche.mi.ingv.it/}, le quali indicano zone con maggiore probabilità di terremoti importanti, andando ad integrare le azioni di informazione e di formazione che fanno parte della \textbf{prevenzione}.
 
 \begin{wrapfigure}[12]{r}{0.25\textwidth}
 \centering
@@ -123,14 +123,24 @@ Nella gestione dell'emergenza possiamo riportare quello che avviene allo stato a
 
 \section{Il progetto SeismoCloud}
 
-Il progetto SeismoCloud nasce dalla collaborazione dall'\textbf{Università degli Studi di Roma "La Sapienza"} e l'\textbf{Istituto Nazionale di Geofisica e Vulcanologia}. L'obiettivo di questo progetto è quello di implementare un sistema di \textbf{early warning} in \textit{crowdsourcing}\footnote{Un sistema si dice in \textit{crowdsourcing} quando i dati per il suo funzionamento vengono forniti dagli stessi utenti} per i terremoti, in grado di inserirsi nel \textit{gap} presente dal momento in cui il terremoto accade, al momento in cui INGV è in grado di individuarlo. Lo scopo del sistema quindi è di individuare i terremoti \textit{in tempo reale}, ovvero alla loro apparizione nell'ipocentro, ed \textbf{anticipare} l'onda sismica (che viaggia, mediamente, ad una velocità di 5 km/s) avvertendo la popolazione nel raggio di azione del terremoto.
-Essendo un sistema in \textit{crowdsourcing}, i dati della rete provengono dagli utenti; sono disponibili applicazioni per smartphones (Android, iOS) e dispositivi \textit{Internet of Things} (Arduino, NodeMCU, Raspberry PI) in grado di collezionare, con apposito sensore, i dati di accelerazione nei tre assi (X, Y, e Z). Data la poca precisione di questi sensori in relazione ai sensori della Rete Sismica Nazionale, il sistema di valutazione di SeismoCloud prende in considerazione la quantità di rilevazioni.
+Il progetto SeismoCloud nasce dalla collaborazione dall'\textbf{Università degli Studi di Roma "La Sapienza"} e l'\textbf{Istituto Nazionale di Geofisica e Vulcanologia}. L'obiettivo di questo progetto è quello di implementare un sistema di \textbf{early warning} in \textit{crowdsourcing}\footnote{Un sistema si dice in \textit{crowdsourcing} quando i dati per il suo funzionamento vengono forniti dagli stessi utenti} per i terremoti, in grado di inserirsi nel \textit{gap} presente dal momento in cui il terremoto accade, al momento in cui INGV è in grado di individuarlo. Lo scopo del sistema quindi è di individuare i terremoti \textit{in tempo reale}, alla loro apparizione nell'ipocentro, ed \textbf{anticipare} l'onda sismica (che viaggia, mediamente, ad una velocità di 5 km/s) avvertendo la popolazione nel raggio di azione del terremoto (questo sistema è chiamato, appunto \textit{early warning}).
 
-\pagebreak
+Già da un decennio alcuni luoghi più sensibili al terremoto si stanno dotando di infrastrutture di \textit{early detection}. Il primo Paese, nel 2006, è stato il Giappone con un sistema denominato \textbf{Earthquake Early Warning}, installato dalla \textbf{JMA} (Japan Meteorological Agency). Tale sistema è composto da 4325 sismometri su tutto il territorio giapponese \footnote{Fonte: JMA, Japan Meteorological Agency, http://www.jma.go.jp}. Il funzionamento è il seguente: quando due o più sensori individuano una scossa di terremoto, il sistema invia degli avvisi immediati attraverso radio, TV e cellulari. L'efficacia\footnote{Per "efficacia" si intende la percentuale di allarmi emessi subito dopo l'individuazione di una onda-P aventi come magnitudo $\pm1$ il valore misurato per il terremoto} di questo sistema varia dal 28\% al 76\% \footnote{Fonte: https://en.wikipedia.org/wiki/Earthquake\_Early\_Warning\_(Japan)}.
 
-\section{Architettura del sistema}
+Tuttavia comporre reti di \textit{early detection} molto accurate e molto rapide, con gli stessi sismometri installati per lo studio dei terremoti, è una operazione \textbf{complessa} oltre che \textbf{costosa}: si deve posizionare il sismometro nel terreno (a volte a decine di metri di profondità), si deve mantenere un collegamento stabile e affidabile alla rete di rilevamento oltre che l'energia per far funzionare gli apparati in loco. Ecco perché SeismoCloud affronta il problema con una soluzione \textbf{crowd-sourced}: quasi tutti gli smartphones moderni è dotata di sensori in grado di rilevare le vibrazioni in modo relativamente accurato\footnote{Olson, Michael; Liu Annie; Faulkner Matthew; Chandy K. Mani; "Rapid Detection of Rare Geospatial Events: Earthquake Warning Applications" in DEBS '11, pp. 89-100, July 2011, ISBN 978-1-4503-0423-8} questo permette ad ogni utilizzatore di un cellulare di essere un potenziale contributore della rete. Inoltre, con l'esplosione dell'\textit{IoT}\footnote{\textit{Internet of Things}, letteralmente \textit{internet delle cose} è l'insieme dei piccoli dispositivi, che eseguono un gruppo di funzioni ristrette (ad esempio, accendi/spegni la luce), connessi alla rete Internet} ed il costo contenuto dell'hardware di questa categoria, reti hobbystiche e comunitarie (come ad esempio le Mesh Networks) possono contribuire in modo aperto e libero.
 
-(inserire qui un grafico dell'architettura del sistema)
+\section{Architettura della rete SeismoCloud}
+
+Essendo un sistema in \textit{crowdsourcing}, i dati della rete provengono dagli utenti; sono disponibili applicazioni per smartphones (Android, iOS) e dispositivi \textit{Internet of Things} (Arduino, NodeMCU, Raspberry PI) in grado di collezionare, con apposito sensore, i dati di accelerazione nei tre assi (X, Y, e Z). La poca precisione di questi sensori (in relazione ai sensori delle reti sismiche ufficiali) non permette di conoscere le componenti importanti per lo studio puntuale e storico dei fenomeni, tuttavia permette, con una certa affidabilità, di individuare la presenza di eventi sismici in atto, in tempi prossimi allo zero.
+
+\begin{figure}[ht]
+\centering
+\label{fig:scsarch}
+\caption{Architettura della rete SeismoCloud}
+\includegraphics[width=0.5\textwidth]{introduzione/SeismoCloud_arch}
+\end{figure}
+
+Dal punto di vista utente, contribuire diventa rapido ed economico: una volta installata la \textit{app}, il sistema si avvia ed entra a far parte della rete. Si è stimato che, per poter coprire un territorio come quello italiano occorrono dai 3000 ai 4000 sismometri, siano essi \textit{app} per cellulari o dispositivi fisici.
 
 \section{Algoritmo di rilevamento}
 
@@ -156,18 +166,27 @@ Threshold = \rho + (\sqrt{\sigma \over (|detections|-1)} * \alpha)
 
 dove: \begin{itemize}
 \item $Acceleration \in Z^+$ rappresenta il valore di accelerazione attuale
-\item $\rho \in Z^+$ è la media dei valori delle rilevazioni, calcolata mediante un \textit{algoritmo online}\footnote{Un algoritmo viene definito \textit{online} se è in grado di processare un oggetto di input per volta (mantenendo l'invariante che il risultato rappresenta il valore atteso), potenzialmente per un numero infinito di oggetti}
-\item $\sigma \in Z^+$ rappresenta lo scarto quadratico medio
+\item $\rho \in Z^+$ è la media dei valori delle rilevazioni, e $\sigma \in Z^+$ lo scarto quadratico medio, entrambi calcolati mediante un \textit{algoritmo online}\footnote{Un algoritmo viene definito \textit{online} se è in grado di processare un oggetto di input per volta (mantenendo l'invariante che il risultato rappresenta il valore atteso), potenzialmente per un numero infinito di oggetti}
 \item $Threshold \in Z^+$ rappresenta la soglia di confronto per il valore di accelerazione, utilizzata per decidere se è da informare il server
 \item $\alpha \in Z^+$ rappresenta un valore moltiplicativo fornito dal server (aggiornato a seguito, ad esempio, di eccessive segnalazioni o soglia troppo alta)
 \end{itemize}
 
+Il rilevamento, con l'algoritmo sopra citato, avviene in background rispetto all'attività utente: in questo modo si consente il multitasking sul dispositivo e si mantiene l'applicazione sempre attiva in modo trasparente per l'utente.
 
 \chapter{Ottimizzazione energetica: i contesti di attivazione}
+
+Il primo processo di ottimizzazione che è stato portato avanti riguarda i \textbf{contesti di attivazione}. Definiamo un \textbf{contesto di applicazione} come l'insieme delle variabili che rappresentano lo stato del telefono (come: stato batteria, attività utente, etc).
+
+Nella prima versione dell'algoritmo di rilevamento erano presenti solo due stati: \textbf{IDLE} e \textbf{QUAKE}. All'accensione del servizio in background (avviato automaticamente dal sistema all'accensione del telefono), il telefono passava nello stato di \textbf{IDLE} per effettuare le rilevazioni, per poi passare allo stato di \textbf{QUAKE} nel momento di una rilevazione sopra soglia. Chiaramente questo sistema prevedeva che il telefono rimanesse in orizzontale tutto il tempo. Questa prima versione è stata utilizzata in fase di test preliminare per valutare l'efficacia degli algoritmi di soglia e di rilevamento.
+
+Successivamente si è introdotta una prima ottimizzazione: l'attivazione del servizio solo quando il telefono si trova in \textbf{posizione orizzontale} (con le tecniche specificate nel capitolo \ref{chapter:sensori}). Questa seconda versione permette di risparmiare le risorse, ed in particolar modo la batteria, quando il telefono è usato dall'utente oppure non poggiato su una superficie piana (ad esempio, il telefono si trova in una tasca oppure in una borsa). Per stabilire le soglie dei valori da considerare come "rotazione" si è stabilito un \textit{range} di rotazione assoluto rispetto al piano orizzontale, ed un offset di rotazione relativo. \textbf{Questo ci permette di individuare sia il posizionamento non favorevole del telefono, sia una sua rotazione o spostamento in modo repentino}. Quest'ultimo caso è importante perché ci ha permesso di ridurre al minimo i falsi positivi relativi all'azione dell'utente su un cellulare posizionato, fino a quel momento, in orizzontale. Abbiamo quindi introdotto un nuovo stato, lo stato di \textbf{MOVE}. La transizione da uno stato all'altro è determinata dai controlli fatti sui valori dei sensori.
+
+Una seconda ottimizzazione è stata apportata dalla modifica dell'algoritmo per la riaccensione dopo lo spegnimento a causa delle condizioni sfavorevoli.
 
 Qui si parla delle politiche di spegnimento (con algoritmo di backoff) in caso di posizione non utile o mancanza di dati utili al rilevamento (prima posizione, rilevato movimento localizzazione) o stato batteria/connessione.
 
 \chapter{Ottimizzazione energetica: i sensori}
+\label{chapter:sensori}
 
 Si spiega anche l'attivazione programmata del magnetometro dopo l'attività dell'accelerometro, inizialmente pensata per risparmiare CPU ed energia, e come questo meccanismo sia stato dismesso poiché effettivamente non comportava nessun risparmio energetico (il sistema mag+accel è sempre attivo).
 
@@ -190,6 +209,15 @@ Parlare del meccanismo di Pushback per l'invio dei dati (ad esempio survey) in b
 \chapter{Ottimizzazione dell'uso di memoria nel codice}
 
 Qui si descrive la politica utilizzata, nella costruzione del codice, per minimizzare lo spreco di memoria (esempio: media/varianza mobile).
+
+\pagebreak
+
+\begin{figure}[ht]
+\centering
+\label{fig:scsarch}
+\caption{Diagramma di flusso del servizio SeismoCloud}
+\includegraphics[width=\textwidth]{introduzione/SeismoCloud_flowdiag}
+\end{figure}
 
 %
 %\chapter{Sviluppo e test}
