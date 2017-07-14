@@ -1,6 +1,8 @@
 \documentclass[a4paper,10pt]{memoir}
 \usepackage[italian]{babel}
 \usepackage{wrapfig}
+\usepackage[pdftex]{graphicx}
+\usepackage{graphviz}
 
 % import package
 \usepackage{FrontespizioSapienza}
@@ -181,6 +183,19 @@ Nella prima versione dell'algoritmo di rilevamento erano presenti solo due stati
 
 Successivamente si è introdotta una prima ottimizzazione: l'attivazione del servizio solo quando il telefono si trova in \textbf{posizione orizzontale} (con le tecniche specificate nel capitolo \ref{chapter:sensori}). Questa seconda versione permette di risparmiare le risorse, ed in particolar modo la batteria, quando il telefono è usato dall'utente oppure non poggiato su una superficie piana (ad esempio, il telefono si trova in una tasca oppure in una borsa). Per stabilire le soglie dei valori da considerare come "rotazione" si è stabilito un \textit{range} di rotazione assoluto rispetto al piano orizzontale, ed un offset di rotazione relativo. \textbf{Questo ci permette di individuare sia il posizionamento non favorevole del telefono, sia una sua rotazione o spostamento in modo repentino}. Quest'ultimo caso è importante perché ci ha permesso di ridurre al minimo i falsi positivi relativi all'azione dell'utente su un cellulare posizionato, fino a quel momento, in orizzontale. Abbiamo quindi introdotto un nuovo stato, lo stato di \textbf{MOVE}. La transizione da uno stato all'altro è determinata dai controlli fatti sui valori dei sensori.
 
+\begin{figure}[ht]
+\centering
+\label{fig:scs_sm1}
+\caption{Diagramma degli stati con Idle, Quake e Move}
+\digraph[width=0.8\textwidth]{StateMachine}{
+rankdir=LR;
+Quake->Idle [label="Quake motion reported"];
+Idle->Quake [label="Quake motion detected"];
+Idle->Move  [label="Rotation off-range"];
+Move->Idle  [label="Rotation normal"];
+}
+\end{figure}
+
 Una seconda ottimizzazione è stata apportata dalla modifica dell'algoritmo per la riaccensione dopo lo spegnimento a causa delle condizioni sfavorevoli.
 
 Qui si parla delle politiche di spegnimento (con algoritmo di backoff) in caso di posizione non utile o mancanza di dati utili al rilevamento (prima posizione, rilevato movimento localizzazione) o stato batteria/connessione.
@@ -214,7 +229,7 @@ Qui si descrive la politica utilizzata, nella costruzione del codice, per minimi
 
 \begin{figure}[ht]
 \centering
-\label{fig:scsarch}
+\label{fig:serviceflowdiagram}
 \caption{Diagramma di flusso del servizio SeismoCloud}
 \includegraphics[width=\textwidth]{introduzione/SeismoCloud_flowdiag}
 \end{figure}
