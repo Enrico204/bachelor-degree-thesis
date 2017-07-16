@@ -266,7 +266,7 @@ Un contesto di attivazione non corretto non permette al servizio di ripartire, e
 \begin{figure}[ht]
 \centering
 \label{fig:scs_sm3}
-\caption{Diagramma degli stati finale}
+\caption{Diagramma degli stati per i contesti di attivazione}
 \digraph[width=\textwidth]{StateMachine3}{
 rankdir=LR;
 Quake->Idle [label="Quake motion reported"];
@@ -281,7 +281,7 @@ Idle->Move_Backoff  [label="Internet unavailable"];
 }
 \end{figure}
 
-Il diagramma degli stati completo è rappresentato nel workflow del servizio, rappresentato dalla figura \ref{fig:serviceflowdiagram} a pagina \pageref{fig:serviceflowdiagram}.
+Il diagramma degli stati completo è rappresentato nel workflow del servizio, rappresentato dalla figura \ref{fig:serviceflowdiagram} a pagina \pageref{fig:serviceflowdiagram}. Una comparazione tra gli algoritmi è possibile vederla nella figura \ref{fig:batterychart} a pagina \pageref{fig:batterychart}
 
 \chapter{Ottimizzazione energetica: i sensori}
 \label{chapter:sensori}
@@ -292,6 +292,14 @@ Si spiega anche l'attivazione programmata del magnetometro dopo l'attività dell
 \label{chapter:batteria}
 
 Qui parlo dell'algoritmo che segue la curva di scarica. Tips: mostrare i dati provenienti dal database con interrogazioni statistiche
+
+\begin{figure}[ht]
+\centering
+\label{fig:batterychart}
+\caption{Comparazione degli algoritmi prima e dopo l'ottimizzazione: \textit{Basic} rappresenta l'algoritmo di base senza ottimizzazioni, \textit{Context-based} rappresenta l'algoritmo che utilizza solo i contesti di attivazione, mentre \textit{Current} rappresenta l'algoritmo corrente, che sfrutta sia i contesti di attivazione che la curva di scarica}
+\includegraphics[width=\textwidth]{database/batteryplot}
+\end{figure}
+
 
 \chapter{Ottimizzazione del processore: la comunicazione con il front-end}
 
