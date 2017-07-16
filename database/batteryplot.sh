@@ -29,7 +29,7 @@ having start < end
 ORDER by start, end
 EOF
 
-echo "$QUERY" | mysql -B -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASS $MYSQL_DB | gawk -F'\t' '
+echo "$QUERY" | mysql -N -B -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASS $MYSQL_DB | gawk -F'\t' '
 function timepad(t) {
 	if (length(t) == 1) {
 		return "0" t

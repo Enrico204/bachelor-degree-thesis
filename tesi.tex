@@ -63,8 +63,8 @@
 La Terra è formata, nei primi 200 km di bordo esterno, da una zona chiamata \textit{litosfera}, di cui fa parte la \textit{crosta terrestre} con le terre emerse ed i fondali marini/oceanici. La \textit{litosfera} è divisa in parti, chiamate \textbf{placche tettoniche}, che "galleggiano" sul \textit{mantello superiore}. Queste placche sono continuamente spinte in direzioni diverse da \textit{moti convettivi} generati dalla temperatura elevata del nucleo. La zona di confine di queste placche viene chiamata \textbf{faglia}, e presenta diverse caratteristiche a seconda delle direzioni delle placche: se due placche si avvicinano, una delle due placche verrà immersa nel mantello sotto l'altra (\textit{subduzione}); se due placche si allontanano, una nuova parte della litosfera viene generata dalla roccia fusa proveniente dal mantello; infine, se due placche si muovo nella stessa direzione ma in senso opposto, siamo in presenza di \textit{margini di scorrimento}.
 
 \begin{wrapfigure}[14]{r}{0.30\textwidth}
-\label{fig:mappafaglie}
 \caption{Mappa delle faglie italiane attive}
+\label{fig:mappafaglie}
 \includegraphics[width=0.30\textwidth]{introduzione/mappa_faglie_italiane2}
 \end{wrapfigure}
 
@@ -77,15 +77,15 @@ Le onde sismiche generate da un terremoto si dividono in \textbf{Onde P} (onde d
 Per misurare l'energia sprigionata da un evento sismico, individuare il punto di origine e altre caratteristiche dell'onda, si utilizzano i \textbf{sismometri}, apparati dotati di accelerometri molto precisi, filtri e amplificatori in grado di rilevare l'accelerazione sulle tre componenti (X-Y-Z) e produrre un \textit{sismogramma} (Figura \ref{fig:sismogramma}).
 
 \begin{figure}[p]
-\label{fig:retesensori}
 \caption{La rete IV - Italian Seismic Network}
+\label{fig:retesensori}
 \centering
 \includegraphics[width=10cm]{introduzione/rete_ingv}
 \end{figure}
 
 \begin{figure}[ht]
-\label{fig:sismogramma}
 \caption{Esempio di sismogramma}
+\label{fig:sismogramma}
 \centering
 \includegraphics[width=10cm]{introduzione/seismogram}
 \end{figure}
@@ -97,8 +97,8 @@ L'energia sprigionata viene misurata in \textbf{magnitudo} su una scala di valut
 Infine possiamo distinguere il punto di origine del terremoto sotto la superficie, chiamato \textbf{epicentro}, e la proiezione di questo punto sulla superficie terrestre, chiamato \textbf{ipocentro} \footnote{Stein, Seth; Wysession, Michael (2009). An Introduction to Seismology, Earthquakes, and Earth Structure. John Wiley \& Sons. ISBN 978-1444311310}.
 
 \begin{figure}[ht]
-\label{fig:epiipo}
 \caption{Epicentro, ipocentro (o focus) e faglia (\textit{fault plane})}
+\label{fig:epiipo}
 \centering
 \includegraphics[scale=0.5]{introduzione/epicenter_diagram}
 \end{figure}
@@ -218,7 +218,7 @@ Move->Idle  [label="Rotation normal"];
 }
 \end{figure}
 
-\paragraph{Seconda ottimizzazione} Una seconda ottimizzazione è stata apportata dallo spegnimento del servizio per un periodo stabilito quando il telefono si trova in uno stato non utile (\textit{MOVE} ad esempio). E' stato introdotto lo stato di \textbf{MOVE\_BACKOFF}, dove il servizio viene portato dopo un periodo di permanenza in \textit{MOVE}. Questo stato prevede lo \textbf{spegnimento} del servizio, con il rilascio di tutti i WakeLocks\footnote{Un "WakeLock" è un meccanismo di segnalazione, al sistema operativo Android, per la gestione di tutto quello che può impedire o modificare gli stati di risparmio energetico del cellulare, come lo schermo o la CPU principale - se nessuno richiede un WakeLock infatti, il cellulare va in uno stato di quiete per cui la CPU principale, il WiFi e altri chip vengono spenti}. Per decidere quando riattivare il servizio (e controllare se ci sono le condizioni per passare allo stato di \textit{IDLE}) viene utilizzato un algoritmo di \textit{backoff esponenziale}: al primo passaggio allo stato di \textbf{MOVE\_BACKOFF} il tempo per il risveglio (e quindi il prossimo controllo) viene impostato a 30 secondi. Successivamente, se il controllo fallisce (quindi rimaniamo dentro \textbf{MOVE}) il tempo viene raddoppiato ogni volta, fino ad un massimo di 900 secondi.
+\paragraph{Seconda ottimizzazione} Una seconda ottimizzazione è stata apportata dallo spegnimento del servizio per un periodo stabilito quando il telefono si trova in uno stato non utile (\textit{MOVE} ad esempio). E' stato introdotto lo stato di \textbf{MOVE\_BACKOFF}, dove il servizio viene portato dopo un periodo di permanenza in \textit{MOVE}. Questo stato prevede lo \textbf{spegnimento} del servizio, con il rilascio di tutti i WakeLocks\footnote{Un "WakeLock" è un meccanismo di segnalazione, al sistema operativo Android, che permette di richiedere di lasciare attivi alcuni sottosistemi, come lo schermo od il chip WiFi - se nessuno richiede un WakeLock infatti, il cellulare va in uno stato di quiete per cui la CPU principale, il WiFi e altri chip vengono spenti}. Per decidere quando riattivare il servizio (e controllare se ci sono le condizioni per passare allo stato di \textit{IDLE}) viene utilizzato un algoritmo di \textbf{backoff esponenziale}: al primo passaggio allo stato di \textit{MOVE\_BACKOFF} il tempo per il risveglio (e quindi il prossimo controllo) viene impostato a 30 secondi. Successivamente, se il controllo per il passaggio da \textit{MOVE} as \textit{IDLE} fallisce (quindi rimaniamo dentro \textit{MOVE}) il tempo di \textit{MOVE\_BACKOFF} viene raddoppiato ogni volta, fino ad un massimo di 900 secondi.
 
 In questo modo il servizio, durante il periodo di \textbf{MOVE\_BACKOFF}, non consuma risorse e non detiene nessun tipo di WakeLock, permettendo quindi al telefono di andare in \textit{stand-by} e gestire il sistema come se SeismoCloud non fosse installato. \textbf{Il consumo determinato dalla nostra app mentre il telefono è in uso, oppure in posizione non orizzontale, è zero}. Il risveglio invece è gestito dal sistema operativo \textbf{Android}, il quale gestisce in modo ottimizzato gli interrupt basati sul tempo (come questo per la riattivazione del servizio), spesso (sui telefoni che lo supportano) con un chip dedicato a consumo molto ridotto.
 
@@ -237,20 +237,22 @@ Move->Move_Backoff  [label="Persistent Move state"];
 }
 \end{figure}
 
-\paragraph{Controllo della localizzazione} Una ulteriore ottimizzazione è stata l'introduzione del controllo sulla effettiva disponibilità del segnale GPS: sia in fase iniziale (quello che, nel lessico del \textit{Global Position System} viene definito come \textit{fix-iniziale}) sia durante il funzionamento (stato \textbf{IDLE}), il sistema controlla l'effettiva presenza del segnale GPS per la localizzazione. Questo permette di individuare diversi comportamenti:
+\paragraph{Controllo della localizzazione} Una ulteriore ottimizzazione è stata l'introduzione del controllo sulla effettiva disponibilità del segnale GPS o dalla localizzazione da rete (utilizzata qualora non sia presente il GPS sul dispositivo, oppure non sia abilitato o ancora non sia presente il segnale satellitare): sia in fase iniziale, sia durante il funzionamento (stato \textbf{IDLE}), il sistema controlla l'effettiva presenza di una localizzazione valida (sia essa il GPS o una posizione acquisita tramite rete cellulare). Questo permette di individuare diverse situazioni a noi sfavorevoli:
 
 \begin{itemize}
-\item \textbf{Disattivazione del sensore GPS} da parte dell'utente (tramite apposita opzione di Android) oppure perdita del segnale
-\item \textbf{Spostamento} del telefono (data la precisione del GPS, spostamento in termini di \textit{metri})
+\item \textbf{Disattivazione del sensore di localizzazione} da parte dell'utente (tramite apposita opzione di Android) oppure perdita del segnale
+\item \textbf{Spostamento} del telefono (inteso come identificazione dello spostamento geografico dell'utente, ad esempio quando si muove in auto)
 \end{itemize}
 
-In entrambi i casi il servizio non è più in grado di fare affidamento alla posizione memorizzata, dunque entra nello stato di \textbf{MOVE\_BACKOFF}, dove continuerà ad essere fino al ritorno del segnale GPS (nel primo caso) o ad una posizione fissa (nel secondo caso). Questo ha permesso di ridurre, come da test effettuati, il consumo di batteria in particolari condizioni: ad esempio posizionare il telefono sul cruscotto di una automobile, o su di un tavolino del treno, avrebbe comportato l'attivazione del servizio a causa della posizione orizzontale. Tuttavia, i dati di accelerazione sarebbero stati ovviamente inutili, ai fini dell'indentificazione del terremoto. Dunque, \textbf{con questa nuova aggiunta il sistema è in grado di rilevare questi casi} e si pone nello stato corretto.
+In entrambi i casi il servizio non è più in grado di fare affidamento alla posizione memorizzata, dunque entra nello stato di \textbf{MOVE\_BACKOFF}, dove continuerà ad essere fino alla riaccensione del sensore di localizzazione (nel primo caso) o ad una posizione valida e fissa (nel secondo caso). Questo ha permesso di ridurre, come da test effettuati, il consumo di batteria in particolari condizioni: ad esempio posizionare il telefono sul cruscotto di una automobile, o su di un tavolino del treno, avrebbe comportato l'attivazione del servizio a causa della posizione orizzontale, tuttavia i dati di accelerazione sarebbero stati ovviamente inutili ai fini dell'indentificazione del terremoto. Dunque, \textbf{con questa nuova aggiunta il sistema è in grado di rilevare questi casi} e si pone nello stato corretto.
 
-\paragraph{Controllo della connessione dati} Ulteriore riduzione del consumo è stata fatta considerando un altro fattore importante per i sistemi \textit{IoT}, ovvero la presenza della connessione di rete (Wi-Fi o rete cellulare). Qualora venga a mancare la connessione di rete, di nuovo il sistema è portato nella posizione di \textbf{MOVE\_BACKOFF} con l'algoritmo sopra citato. Questo permette di risparmiare batteria nei luoghi dove e nei momenti quando il segnale è assente.
+Poiché la precisione della localizzazione via rete cellulare è molto variabile (dai pochi metri a decine di km), è stato stabilito di non considerare localizzazioni via rete cellulare che hanno una accuratezza maggiore di 500 metri.
+
+\paragraph{Controllo della connessione dati} Un altro fattore importante per una buona rilevazione è la presenza della connessione di rete (Wi-Fi o rete cellulare). Qualora venga a mancare la connessione Internet non si potrà avvertire per tempo il server: il sistema è quindi portato nella posizione di \textbf{MOVE\_BACKOFF} con l'algoritmo sopra citato. Questo permette di risparmiare batteria quando il segnale è assente.
 
 \paragraph{La batteria} Infine, è stata fatta una analisi sulla batteria e sul consumo. In prima istanza è stato considerato lo status di "\textbf{risparmio energia}" che Android attiva nel momento in cui la batteria raggiunge un valore prefissato (in genere, a meno di cambiamenti fatti dall'utente, il valore è il 15\% della capacità). Grazie ad un \textit{handler} viene intercettato questo evento e viene posto il servizio nella fase di \textbf{MOVE\_BACKOFF} indipendentemente dalle condizioni favorevoli sopra citate. Dopodiché si è provveduto ad effettuare uno studio approfondito, con diversi test, meglio specificata nel capitolo \ref{chapter:batteria}.
 
-\paragraph{Contesto di attivazione} Infine quindi, il nostro \textbf{contesto di attivazione} si compone delle variabili:
+\paragraph{Conclusioni} Abbiamo quindi definito una serie di variabili che compongono il nostro \textbf{contesto di attivazione}, ovvero:
 
 \begin{itemize}
 \item Rotazione/posizione favorevole o no alla lettura del dato
@@ -261,12 +263,12 @@ In entrambi i casi il servizio non è più in grado di fare affidamento alla pos
 \item Status di risparmio energetico del sistema operativo (capacità batteria rimanente)
 \end{itemize}
 
-Un contesto di attivazione non corretto non permette al servizio di ripartire, e quindi di consumare batteria, CPU e memoria. Il diagramma a stati:
+Questa definizione ci permette di stabilire, come abbiamo fatto, una istanza del contesto per la quale è favorevole attivare il servizio (localizzazione presente, posizione orizzontale, etc.), permettendo così un risparmio notevole (come evidenziato dalla tabella \ref{table:tempoutilizzo} e dalla figura \ref{fig:usagechart}). Il diagramma a stati che rappresenta le transizioni tra gli stati è il seguente:
 
 \begin{figure}[ht]
 \centering
-\label{fig:scs_sm3}
 \caption{Diagramma degli stati per i contesti di attivazione}
+\label{fig:scs_sm3}
 \digraph[width=\textwidth]{StateMachine3}{
 rankdir=LR;
 Quake->Idle [label="Quake motion reported"];
@@ -281,7 +283,25 @@ Idle->Move_Backoff  [label="Internet unavailable"];
 }
 \end{figure}
 
-Il diagramma degli stati completo è rappresentato nel workflow del servizio, rappresentato dalla figura \ref{fig:serviceflowdiagram} a pagina \pageref{fig:serviceflowdiagram}. Una comparazione tra gli algoritmi è possibile vederla nella figura \ref{fig:batterychart} a pagina \pageref{fig:batterychart}
+\begin{figure}[ht]
+\centering
+\caption{Comparazione (valori medi in un giorno) dell'utilizzo delle risorse CPU e sensori da parte degli algoritmi con (\textit{Current}) e senza (\textit{Original}) contesto di attivazione: si può notare come il tempo di inattività in blu (\textbf{MOVE\_BACKOFF}) sia una porzione notevole del tempo totale}
+\includegraphics[width=\textwidth]{database/usageplot}
+\label{fig:usagechart}
+\end{figure}
+
+\begin{table}[h]
+\centering
+\caption{Tempo di utilizzo delle risorse (media giornaliera)}
+\label{table:tempoutilizzo}
+\begin{tabular}{lllll}
+& \textbf{Servizio attivo} & \textbf{Servizio inattivo} & \textbf{Telefono spento} &  \\
+Algoritmo originale   & 18 ore e 24 min  & mai              & 5 ore 36 min &  \\
+Algoritmo ottimizzato & 6 ore e 36 min   & 11 ore e 48 min  & 5 ore 36 min &
+\end{tabular}
+\end{table}
+
+Il diagramma degli stati completo è rappresentato nel workflow del servizio, rappresentato dalla figura \ref{fig:serviceflowdiagram} a pagina \pageref{fig:serviceflowdiagram}. L'impatto di queste e successive ottimizzazioni sulla batteria è possibile vederlo nella figura \ref{fig:batterychart} a pagina \pageref{fig:batterychart}.
 
 \chapter{Ottimizzazione energetica: i sensori}
 \label{chapter:sensori}
@@ -295,9 +315,9 @@ Qui parlo dell'algoritmo che segue la curva di scarica. Tips: mostrare i dati pr
 
 \begin{figure}[ht]
 \centering
-\label{fig:batterychart}
-\caption{Comparazione degli algoritmi prima e dopo l'ottimizzazione: \textit{Basic} rappresenta l'algoritmo di base senza ottimizzazioni, \textit{Context-based} rappresenta l'algoritmo che utilizza solo i contesti di attivazione, mentre \textit{Current} rappresenta l'algoritmo corrente, che sfrutta sia i contesti di attivazione che la curva di scarica}
+\caption{Capacità residua batteria prima e dopo l'ottimizzazione: \textit{Basic} rappresenta l'algoritmo di base senza ottimizzazioni, \textit{Context-based} rappresenta l'algoritmo che utilizza solo i contesti di attivazione, mentre \textit{Current} rappresenta l'algoritmo corrente, che sfrutta sia i contesti di attivazione che la curva di scarica}
 \includegraphics[width=\textwidth]{database/batteryplot}
+\label{fig:batterychart}
 \end{figure}
 
 
@@ -317,12 +337,12 @@ Parlare del meccanismo di Pushback per l'invio dei dati (ad esempio survey) in b
 
 Qui si descrive la politica utilizzata, nella costruzione del codice, per minimizzare lo spreco di memoria (esempio: media/varianza mobile).
 
-\pagebreak
+\clearpage
 
 \begin{figure}[ht]
 \centering
-\label{fig:serviceflowdiagram}
 \caption{Diagramma di flusso del servizio SeismoCloud}
+\label{fig:serviceflowdiagram}
 \includegraphics[width=\textwidth]{SeismoCloud_flowdiag}
 \end{figure}
 
