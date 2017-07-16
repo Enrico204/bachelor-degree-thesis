@@ -189,6 +189,7 @@ Il rilevamento, con l'algoritmo sopra citato, avviene in background rispetto all
 \end{figure}
 
 \chapter{Ottimizzazione energetica: i contesti di attivazione}
+\label{chapter:contesti}
 
 Il primo processo di ottimizzazione che è stato portato avanti riguarda i \textbf{contesti di attivazione}. Definiamo il \textbf{contesto di attivazione} come l'insieme delle variabili che rappresentano lo stato del telefono (come: stato batteria, attività utente, etc).
 
@@ -384,14 +385,73 @@ L3G4200D\footnote{https://cdn.sparkfun.com/datasheets/Sensors/Gyros/3-Axis/CD002
 \chapter{Ottimizzazione energetica: la curva di scarica}
 \label{chapter:batteria}
 
-Qui parlo dell'algoritmo che segue la curva di scarica. Tips: mostrare i dati provenienti dal database con interrogazioni statistiche
+Una risorsa molto importante, dal punto di vista degli utenti, è la batteria: mentre i vecchi telefoni non avevano richieste particolari, in termini di quantità di energia elettrica, i nuovi smartphones sono voraci di elettricità. Di consequenza, l'obiettivo è quello di portare l'applicazione ad impattare il meno possibile sul consumo.
+
+\paragraph{La curva di scarica} In parte, le ottimizzazioni già presentate nel capitolo \ref{chapter:contesti} hanno portato ad un risparmio energetico; tuttavia si è voluto studiare un sistema più "aggressivo" per portare i consumi al minimo possibile. Sono partito quindi da quello che è il principale requisito per l'utente: \textbf{il telefono deve arrivare a fine giornata}, ovvero nessuna applicazione deve consumare così tanto da rendere il telefono scarico prima di avere una fonte di energia. Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente elettrica per cena, facendo una rapida analisi sui dati presenti sul \textit{database} è stato identificato, come \textit{target}, una \textbf{carica residua del 15\% alle ore 20:00}, partendo dal 100\% alle ore 08:00. E' stata quindi calcolata una curva lineare di scarica, con lo scopo di tenere il servizio attivo solo quando è sopra la soglia. L'idea iniziale quindi era di questo comportamento:
 
 \begin{figure}[ht]
 \centering
-\caption{Capacità residua batteria prima e dopo l'ottimizzazione: \textit{Basic} rappresenta l'algoritmo di base senza ottimizzazioni, \textit{Context-based} rappresenta l'algoritmo che utilizza solo i contesti di attivazione, mentre \textit{Current} rappresenta l'algoritmo corrente, che sfrutta sia i contesti di attivazione che la curva di scarica}
+\caption{Comportamento atteso: la carica del cellulare (verde, in questo caso simulata) non deve mai scendere sotto la curva di scarica calcolata (rosso)}
+\includegraphics[width=\textwidth]{database/expectedplot}
+\label{fig:expectedchart}
+\end{figure}
+
+\pagebreak
+
+Dopo averla applicata sui dispositivi di test, abbiamo subito notato un enorme cambiamento: nonostante un tempo di attività leggermente inferiore a causa dei distacchi per rispettare la soglia (cosa che, ovviamente, varia da telefono a telefono a seconda della capacità della batteria, delle applicazioni installate, dell'hardware del telefono e dell'utilizzo), il consumo evidenziato dai dati sul \textit{database} è nettamente migliore, come mostrato nella figura \ref{fig:batterychart}.
+
+\begin{figure}[h]
+\centering
+\caption{Capacità residua batteria (media) prima e dopo l'ottimizzazione: \textit{Basic} rappresenta l'algoritmo di base senza ottimizzazioni, \textit{Context-based} rappresenta l'algoritmo che utilizza solo i contesti di attivazione, mentre \textit{Current} rappresenta l'algoritmo corrente, che sfrutta sia i contesti di attivazione che la curva di scarica}
 \includegraphics[width=\textwidth]{database/batteryplot}
 \label{fig:batterychart}
 \end{figure}
+
+
+\begin{listing}[H]
+\caption{Porzione di codice che calcola la curva di scarica e indica se procedere o no con il servizio}
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{java}
+// Orario di inizio
+private static final Double T0 = 8 * 60.0;
+// Orario di fine
+private static final Double T1 = 20 * 60.0;
+// Carica iniziale
+private static final Integer B0 = 100;
+// Ratio di scarica
+private static final Double R0 = (100.0 - 15.0) / (T1 - T0);
+
+/**
+ * Calcola il valore atteso della batteria all'orario corrente
+ */
+@NonNull
+public static Double expectedBattery() {
+	Calendar c = Calendar.getInstance();
+	if (c.get(Calendar.HOUR_OF_DAY) < 8) {
+		return 100.0;
+	}
+	Integer Tx = c.get(Calendar.HOUR_OF_DAY) * 60 + c.get(Calendar.MINUTE);
+	return Math.floor(B0 - ((Tx - T0) * R0));
+}
+
+/**
+ * Controlla se ci sono le condizioni per proseguire
+ * (caricabatterie collegato oppure valore batteria sopra curva)
+ */
+public static boolean shouldProceedWithService(Context ctx) {
+	if (BatteryLevelReceiver.isPowerSupplyConnected(ctx)) {
+		return true;
+	}
+	Double expected = expectedBattery();
+	Float now = Utils.getBatteryLevel(ctx);
+	return now == 0 || (expected <= now && now > 15.0);
+}
+\end{minted}
+\end{listing}
 
 
 \chapter{Ottimizzazione del processore: la comunicazione con il front-end}
