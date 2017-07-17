@@ -137,7 +137,20 @@ Tuttavia comporre reti di \textit{early detection} molto accurate e molto rapide
 
 \section{Architettura della rete SeismoCloud}
 
-Essendo un sistema in \textit{crowdsourcing}, i dati della rete provengono dagli utenti; sono disponibili applicazioni per smartphones (Android, iOS) e per dispositivi \textit{Internet of Things} (Arduino, NodeMCU, Raspberry PI) in grado di collezionare, con apposito sensore, i dati di accelerazione nei tre assi (X, Y, e Z). La poca precisione di questi sensori (in relazione ai sensori delle reti sismiche ufficiali) non permette di conoscere le componenti importanti per lo studio puntuale e storico dei fenomeni, tuttavia permette, con una certa affidabilità, di individuare la presenza di eventi sismici in atto, in tempi prossimi allo zero.
+Essendo un sistema in \textit{crowdsourcing}, i dati della rete provengono dagli utenti; sono disponibili applicazioni per smartphones (Android, iOS) e per dispositivi \textit{Internet of Things} (Arduino, NodeMCU, Raspberry PI) in grado di collezionare, con apposito sensore, i dati di accelerazione nei tre assi (X, Y, e Z). La poca precisione di questi sensori (tabella \ref{table:datisensori}), in relazione ai sensori delle reti sismiche ufficiali, non permette di conoscere le componenti importanti per lo studio puntuale e storico dei fenomeni (ad esempio la distanza tra le onde P e le onde S, che richiede una analisi spettrale), tuttavia permette, con una certa affidabilità, di individuare la presenza di eventi sismici in atto se le misure singole dei vari dispositivi sono messe in relazione tra di loro.
+
+\begin{table}[h]
+\centering
+\caption{Confronto tra un accelerometro della rete IV (posizionato a Latina) con un accelerometro di uno smartphone}
+\label{table:datisensori}
+\begin{tabular}{lll}
+                    & Frequenza massima (Hz) & Sensibilità (g) \\
+CMG-5T (IV.LATB) & 100 & $\pm 2.384 * 10^{-7}$ \\
+ADXL345          & 50 & $\pm 3.91 * 10^{-3}$
+\end{tabular}
+\end{table}
+
+Sebbene i valori siano così differenti, come si evince dalla tabella \ref{table:consumosensori}, poiché le onde sismiche hanno frequenze tra 0.1 e 15 Hz\footnote{Fonte: USGS, U.S. Geological Survey; https://earthquake.usgs.gov/learn/facts.php} la frequenza è adatta al rilevamento. La sensibilità, sebbene nettamente inferiore, è sufficiente ad individuare i terremoti in superficie\footnote{    Francesco Finazzi, Alessandro Fassò; "A statistical approach to crowdsourced smartphone-based earthquake early warning systems"; Stochastic Environmental Research and Risk Assessment.  doi:10.1007/s00477-016-1240-8}
 
 \begin{figure}[ht]
 \centering
@@ -148,44 +161,32 @@ Essendo un sistema in \textit{crowdsourcing}, i dati della rete provengono dagli
 
 Dal punto di vista utente, contribuire diventa rapido ed economico: una volta installata la \textit{app}, il sistema si avvia, acquisisce la posizione GPS ed entra a far parte della rete. Si è stimato che, per poter coprire un territorio come quello italiano occorrono dai 3000 ai 4000 sismometri, siano essi \textit{app} per cellulari o dispositivi fisici.
 
-\pagebreak
-
 \section{Algoritmo di rilevamento}
 
-Il funzionamento del sistema è il seguente: ogni dispositivo (smartphone o dispositivo \textit{IoT}) ha almeno due stati: \textbf{ALIVE} e \textbf{QUAKE}. Un dispositivo nello stato di \textbf{ALIVE} effettua una rilevazione dell'accelerazione su ogni asse ogni $50ms$, e viene calcolata la componente del vettore risultante mediante la formula~\ref{eq:vettoreris}. Il valore viene quindi confrontato con un valore di soglia calcolato (\ref{eq:soglia}) in modo da filtrare il rumore di fondo e, se la rilevazione risulta superiore alla soglia, il dispositivo informa il server comunicando l'attuale accelerazione rilevata, la posizione geografica ed il momento della rilevazione espresso in tempo UNIX\footnote{Il "tempo UNIX" è definito come il numero di secondi dallo \textit{UNIX Epoch Time}, ovvero dal 1 Gennaio 1970} (con precisione di $\pm1ms$), e successivamene passa allo stato di \textbf{QUAKE}.
+\begin{wrapfigure}{r}{0.25\textwidth}
+\centering
+\label{fig:scsaxes}
+\caption{Posizionamento assi cartesiani in uno smartphone}
+\includegraphics[width=0.25\textwidth]{introduzione/smartphone_axes}
+\end{wrapfigure}
+
+Il funzionamento del sistema è il seguente: ogni dispositivo (smartphone o dispositivo \textit{IoT}) ha almeno due stati: \textbf{ALIVE} e \textbf{QUAKE}. Un dispositivo nello stato di \textbf{ALIVE} effettua una rilevazione dell'accelerazione su ogni asse ogni $20ms$, e viene calcolata la componente del vettore risultante mediante la formula~\ref{eq:vettoreris}. Il valore viene quindi confrontato con un valore di soglia calcolato (\ref{eq:soglia}) in modo da filtrare il rumore di fondo e, se la rilevazione risulta superiore alla soglia, il dispositivo informa il server comunicando l'attuale accelerazione rilevata, la posizione geografica ed il momento della rilevazione espresso in tempo UNIX\footnote{Il "tempo UNIX" è definito come il numero di secondi dallo \textit{UNIX Epoch Time}, ovvero dal 1 Gennaio 1970} (con precisione di $\pm1ms$), e successivamene passa allo stato di \textbf{QUAKE}.
 
 \begin{equation} \label{eq:vettoreris}
 Acceleration = \sqrt{Value(X)^2 + Value(Y)^2 + Value(Z)^2}
 \end{equation}
 
-Per ogni valore rilevato nello stato \textit{ALIVE}, inoltre, vengono aggiornati i seguenti valori:
-\begin{equation}
-\Delta = Acceleration - \rho
-\end{equation}
-\begin{equation}
-\rho = \rho + {\Delta \over |detections|}
-\end{equation}
-\begin{equation}
-\sigma = \sigma + \Delta * (Acceleration - \rho)
-\end{equation}
 \begin{equation} \label{eq:soglia}
-Threshold = \rho + (\sqrt{\sigma \over (|detections|-1)} * \alpha)
+Threshold = Mean + Variance * \sigma
 \end{equation}
-
-dove: \begin{itemize}
-\item $Acceleration \in Z^+$ rappresenta il valore di accelerazione attuale
-\item $\rho \in Z^+$ è la media dei valori delle rilevazioni, e $\sigma \in Z^+$ lo scarto quadratico medio, entrambi calcolati mediante un \textit{algoritmo online}\footnote{Un algoritmo viene definito \textit{online} se è in grado di processare un oggetto di input per volta (mantenendo l'invariante che il risultato rappresenta il valore atteso), potenzialmente per un numero infinito di oggetti}
-\item $Threshold \in Z^+$ rappresenta la soglia di confronto per il valore di accelerazione, utilizzata per decidere se è da informare il server
-\item $\alpha \in Z^+$ rappresenta un valore moltiplicativo fornito dal server (aggiornato a seguito, ad esempio, di eccessive segnalazioni o soglia troppo alta)
-\end{itemize}
 
 Il rilevamento, con l'algoritmo sopra citato, avviene in background rispetto all'attività utente: in questo modo si consente il multitasking sul dispositivo e si mantiene l'applicazione sempre attiva in modo trasparente per l'utente.
 
 \begin{figure}[ht]
 \centering
-\label{fig:scsaxes}
-\caption{Posizionamento assi cartesiani in uno smartphone}
-\includegraphics[width=0.5\textwidth]{introduzione/smartphone_axes}
+\label{fig:scstrace}
+\caption{Grafico dei dati estratti da un sensore SeismoCloud. La linea rossa rappresenta la soglia del dispositivo, le linee verdi, blu e azzurra rappresentano le eventuali soglie alternative calcolate con un valore moltiplicativo del server differente}
+\includegraphics[width=\textwidth]{database/984fee0055c9}
 \end{figure}
 
 \chapter{Ottimizzazione energetica: i contesti di attivazione}
@@ -467,6 +468,27 @@ Si spiega come l'introduzione dell'MQTT abbia ridotto il carico sulla rete per l
 Parlare del meccanismo di Pushback per l'invio dei dati (ad esempio survey) in background in modo ottimizzato in caso di problemi di rete (invio asincrono).
 
 \chapter{Ottimizzazione dell'uso di memoria nel codice}
+
+Per ogni valore rilevato nello stato \textit{ALIVE}, inoltre, vengono aggiornati i seguenti valori:
+\begin{equation}
+\Delta = Acceleration - \rho
+\end{equation}
+\begin{equation}
+\rho = \rho + {\Delta \over |detections|}
+\end{equation}
+\begin{equation}
+\sigma = \sigma + \Delta * (Acceleration - \rho)
+\end{equation}
+\begin{equation}
+Threshold = \rho + (\sqrt{\sigma \over (|detections|-1)} * \alpha)
+\end{equation}
+
+dove: \begin{itemize}
+\item $Acceleration \in Z^+$ rappresenta il valore di accelerazione attuale
+\item $\rho \in Z^+$ è la media dei valori delle rilevazioni, e $\sigma \in Z^+$ lo scarto quadratico medio, entrambi calcolati mediante un \textit{algoritmo online}\footnote{Un algoritmo viene definito \textit{online} se è in grado di processare un oggetto di input per volta (mantenendo l'invariante che il risultato rappresenta il valore atteso), potenzialmente per un numero infinito di oggetti}
+\item $Threshold \in Z^+$ rappresenta la soglia di confronto per il valore di accelerazione, utilizzata per decidere se è da informare il server
+\item $\alpha \in Z^+$ rappresenta un valore moltiplicativo fornito dal server (aggiornato a seguito, ad esempio, di eccessive segnalazioni o soglia troppo alta)
+\end{itemize}
 
 Qui si descrive la politica utilizzata, nella costruzione del codice, per minimizzare lo spreco di memoria (esempio: media/varianza mobile).
 
