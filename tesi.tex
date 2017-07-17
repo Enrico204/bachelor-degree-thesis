@@ -3,6 +3,7 @@
 \usepackage{wrapfig}
 \usepackage[pdftex]{graphicx}
 \usepackage{graphviz}
+\usepackage{amsmath}
 
 \usepackage{minted}
 
@@ -213,7 +214,7 @@ Alive->Quake [label="Quake motion detected"];
 \centering
 \label{fig:scs_sm1}
 \caption{Diagramma degli stati con Alive, Quake e Move}
-\digraph[width=0.8\textwidth]{StateMachine1}{
+\digraph[width=0.7\textwidth]{StateMachine1}{
 rankdir=LR;
 Start [style=invis];
 Start->Alive [label="Service started"];
@@ -223,6 +224,69 @@ Alive->Move  [label="Rotation off-range"];
 Move->Alive  [label="Rotation normal"];
 }
 \end{figure}
+
+\begin{listing}[H]
+\caption{Codice di gestione della rotazione (alcune linee sono state accorpate per la stampa)}
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{java}
+boolean inRotation = Math.abs(gravity[2]) < gravityThreshold
+		|| !(gravity[0] > -1 && gravity[0] < 1)
+		|| !(gravity[1] > -1 && gravity[1] < 1);
+if (isMoving)
+	// Siamo in movimento - MOVE - valuto una transizione MOVE->FLAT
+	if (accelerometerIntensity < 0.3 && !inRotation) {
+		// I valori sono buoni per considerare la posizione come FLAT
+		if (++countFlat > 5) {
+			// Soglia di 5 valori OK per FLAT, passaggio a FLAT
+			switchToMove(false); countFlat = movingLastMs = 0;
+			seismometer.reset();
+			// Informo il server che sono di nuovo OK
+			WebApiInterface.alive(...);
+		}
+	} else countFlat = 0; // riparto da zero per MOVE->FLAT
+else // Siamo in posizione stabile - FLAT - controllo se siamo in rotazione
+	if (inRotation) {
+		// Valori fuori scala per FLAT - transizione FLAT->MOVE
+		goToMoving(); isQuake = 0;
+		movingLastMs = System.currentTimeMillis();
+	} else if (seismometer.tick(accelerometerIntensity)
+			&& magneticValues[0] != 0 && magneticValues[1] != 0
+			&& magneticValues[2] != 0) {
+		// Calcolo la rotazione
+		float[] rot = computeOrientation(); oldRotation = rotation;
+		rotation = 1000*sqrt(rot[0]*rot[0]+rot[1]*rot[1]+rot[2]*rot[2]);
+		deltaRot = (oldRotation==0.0d)?0.0d:abs(rotation-oldRotation);
+		countFlat = 0;
+		if (deltaRot > 75.0) {
+			// il telefono e' in rotazione, quindi si va in MOVE
+			goToMoving(); movingLastMs = System.currentTimeMillis();
+		} else if (!inQuakeCondition) {
+			// Niente rotazione pero' valore sopra soglia
+			seismometer.addValueToAvgVar(accelerometerIntensity);
+			Double d = Math.floor(System.currentTimeMillis()/1000D);
+			WebApiInterface.terremoto(d.intValue(), location);
+			magneticValues = new float[]{0, 0, 0};
+			oldRotation = rotation = deltaRot = 0.0d;
+			isQuake = System.currentTimeMillis();
+			stopCause = StopCause.QUAKE;
+		}
+	} else {
+		countFlat++;
+		// Aggiorno la soglia
+		if (!inQuakeCondition)
+			seismometer.addValueToAvgVar(accelerometerIntensity);
+		// Keep alive
+		if (System.currentTimeMillis() - timerAlive > 15 * 60 * 1000) {
+			WebApiInterface.alive(...);
+			timerAlive = System.currentTimeMillis();
+		}
+	}
+\end{minted}
+\end{listing}
 
 \paragraph{Seconda ottimizzazione} Una seconda ottimizzazione è stata apportata dallo spegnimento del servizio per un periodo stabilito quando il telefono si trova in uno stato non utile (\textit{MOVE} ad esempio). E' stato introdotto lo stato di \textbf{MOVE\_BACKOFF}, dove il servizio viene portato dopo un periodo di permanenza in \textit{MOVE}. Questo stato prevede lo \textbf{spegnimento} del servizio, con il rilascio di tutti i WakeLocks\footnote{Un "WakeLock" è un meccanismo di segnalazione, al sistema operativo Android, che permette di richiedere di lasciare attivi alcuni sottosistemi, come lo schermo od il chip WiFi - se nessuno richiede un WakeLock infatti, il cellulare va in uno stato di quiete per cui la CPU principale, il WiFi e altri chip vengono spenti}. Per decidere quando riattivare il servizio (e controllare se ci sono le condizioni per passare allo stato di \textit{ALIVE}) viene utilizzato un algoritmo di \textbf{backoff esponenziale}: al primo passaggio allo stato di \textit{MOVE\_BACKOFF} il tempo per il risveglio (e quindi il prossimo controllo) viene impostato a 30 secondi. Successivamente, se il controllo per il passaggio da \textit{MOVE} as \textit{ALIVE} fallisce (quindi rimaniamo dentro \textit{MOVE}) il tempo di \textit{MOVE\_BACKOFF} viene raddoppiato ogni volta, fino ad un massimo di 900 secondi.
 
@@ -388,7 +452,31 @@ L3G4200D\footnote{https://cdn.sparkfun.com/datasheets/Sensors/Gyros/3-Axis/CD002
 
 Una risorsa molto importante, dal punto di vista degli utenti, è la batteria: mentre i vecchi telefoni non avevano richieste particolari, in termini di quantità di energia elettrica, i nuovi smartphones sono voraci di elettricità. Di consequenza, l'obiettivo è quello di portare l'applicazione ad impattare il meno possibile sul consumo.
 
-\paragraph{La curva di scarica} In parte, le ottimizzazioni già presentate nel capitolo \ref{chapter:contesti} hanno portato ad un risparmio energetico; tuttavia si è voluto studiare un sistema più "aggressivo" per portare i consumi al minimo possibile. Sono partito quindi da quello che è il principale requisito per l'utente: \textbf{il telefono deve arrivare a fine giornata}, ovvero nessuna applicazione deve consumare così tanto da rendere il telefono scarico prima di avere una fonte di energia. Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente elettrica per cena, facendo una rapida analisi sui dati presenti sul \textit{database} è stato identificato, come \textit{target}, una \textbf{carica residua del 15\% alle ore 20:00}, partendo dal 100\% alle ore 08:00. E' stata quindi calcolata una curva lineare di scarica, con lo scopo di tenere il servizio attivo solo quando è sopra la soglia. L'idea iniziale quindi era di questo comportamento:
+\paragraph{La curva di scarica} In parte, le ottimizzazioni già presentate nel capitolo \ref{chapter:contesti} hanno portato ad un risparmio energetico; tuttavia si è voluto studiare un sistema più "aggressivo" per portare i consumi al minimo possibile. Sono partito quindi da quello che è il principale requisito per l'utente: \textbf{il telefono deve arrivare a fine giornata}, ovvero nessuna applicazione deve consumare così tanto da rendere il telefono scarico prima di avere una fonte di energia. Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente elettrica per cena, facendo una rapida analisi sui dati presenti sul \textit{database} è stato identificato, come \textit{target}, una \textbf{carica residua del 15\% alle ore 20:00}, partendo dal 100\% alle ore 08:00. E' stata quindi calcolata una curva lineare di scarica, con lo scopo di tenere il servizio attivo solo quando è sopra la soglia.
+
+\begin{equation}
+\gamma = {85 \over 720}
+\end{equation}
+
+\begin{equation}
+\lambda = \text{hour} * 60 + \text{minutes}
+\end{equation}
+
+\begin{equation}
+	\\
+    Threshold =
+    \begin{cases}
+        0 & \text{if hour} < 8\\
+        {100 - ((\lambda - 480) * \gamma)} & \text{otherwise.}
+    \end{cases}
+\end{equation}
+
+Dove:
+\begin{itemize}
+\item $\gamma \in Z^+$ rappresenta il valore di carica associato ad un minuto nella fascia 8-20
+\item $\lambda \in N^+$ rappresenta il numero di minuti a partire dalla mezzanotte del giorno
+\item $Threshold \in Z^+$ è il valore attuale previsto per l'orario attuale
+\end{itemize}
 
 \begin{figure}[ht]
 \centering
@@ -396,8 +484,6 @@ Una risorsa molto importante, dal punto di vista degli utenti, è la batteria: m
 \includegraphics[width=\textwidth]{database/expectedplot}
 \label{fig:expectedchart}
 \end{figure}
-
-\pagebreak
 
 Dopo averla applicata sui dispositivi di test, abbiamo subito notato un enorme cambiamento: nonostante un tempo di attività leggermente inferiore a causa dei distacchi per rispettare la soglia (cosa che, ovviamente, varia da telefono a telefono a seconda della capacità della batteria, delle applicazioni installate, dell'hardware del telefono e dell'utilizzo), il consumo evidenziato dai dati sul \textit{database} è nettamente migliore, come mostrato nella figura \ref{fig:batterychart}.
 
@@ -425,11 +511,9 @@ private static final Double T1 = 20 * 60.0;
 private static final Integer B0 = 100;
 // Ratio di scarica
 private static final Double R0 = (100.0 - 15.0) / (T1 - T0);
-
 /**
  * Calcola il valore atteso della batteria all'orario corrente
  */
-@NonNull
 public static Double expectedBattery() {
 	Calendar c = Calendar.getInstance();
 	if (c.get(Calendar.HOUR_OF_DAY) < 8) {
@@ -438,7 +522,6 @@ public static Double expectedBattery() {
 	Integer Tx = c.get(Calendar.HOUR_OF_DAY) * 60 + c.get(Calendar.MINUTE);
 	return Math.floor(B0 - ((Tx - T0) * R0));
 }
-
 /**
  * Controlla se ci sono le condizioni per proseguire
  * (caricabatterie collegato oppure valore batteria sopra curva)
@@ -447,9 +530,8 @@ public static boolean shouldProceedWithService(Context ctx) {
 	if (BatteryLevelReceiver.isPowerSupplyConnected(ctx)) {
 		return true;
 	}
-	Double expected = expectedBattery();
 	Float now = Utils.getBatteryLevel(ctx);
-	return now == 0 || (expected <= now && now > 15.0);
+	return now == 0 || (expectedBattery() <= now && now > 15.0);
 }
 \end{minted}
 \end{listing}
