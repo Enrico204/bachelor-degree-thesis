@@ -195,7 +195,9 @@ Il rilevamento, con l'algoritmo sopra citato, avviene in background rispetto all
 
 Il primo processo di ottimizzazione che è stato portato avanti riguarda i \textbf{contesti di attivazione}. Definiamo il \textbf{contesto di attivazione} come l'insieme delle variabili che rappresentano lo stato del telefono (come: stato batteria, attività utente, etc).
 
-\paragraph{Versione base} Nella prima scrittura dell'algoritmo di rilevamento erano presenti solo due stati: \textbf{ALIVE} e \textbf{QUAKE}. All'accensione del servizio in background (avviato automaticamente dal sistema all'accensione del telefono), il telefono passava nello stato di \textbf{ALIVE} per effettuare le rilevazioni, per poi passare allo stato di \textbf{QUAKE} nel momento di una rilevazione sopra soglia. Chiaramente questo sistema prevedeva che il telefono rimanesse in orizzontale tutto il tempo. Questa prima versione è stata utilizzata in fase di test preliminare per valutare l'efficacia degli algoritmi di soglia e di rilevamento.
+\section{Versione base}
+
+Nella prima scrittura dell'algoritmo di rilevamento erano presenti solo due stati: \textbf{ALIVE} e \textbf{QUAKE}. All'accensione del servizio in background (avviato automaticamente dal sistema all'accensione del telefono), il telefono passava nello stato di \textbf{ALIVE} per effettuare le rilevazioni, per poi passare allo stato di \textbf{QUAKE} nel momento di una rilevazione sopra soglia. Chiaramente questo sistema prevedeva che il telefono rimanesse in orizzontale tutto il tempo. Questa prima versione è stata utilizzata in fase di test preliminare per valutare l'efficacia degli algoritmi di soglia e di rilevamento.
 
 \begin{figure}[ht]
 \centering
@@ -208,22 +210,9 @@ Alive->Quake [label="Quake motion detected"];
 }
 \end{figure}
 
-\paragraph{Prima ottimizzazione} Poiché il telefono può essere in posizione non ottimale per il rilevamento, si è deciso di procedere all'attivazione del servizio solo quando il telefono si trova in \textbf{posizione orizzontale} (con le tecniche specificate nel capitolo \ref{chapter:sensori}). Questa modifica permette di risparmiare le risorse, ed in particolar modo la batteria (tramite la diminuzione della pressione sulla CPU e memoria), quando il telefono è usato dall'utente oppure non poggiato su una superficie piana (ad esempio, il telefono si trova in una tasca oppure in una borsa). Per stabilire le soglie dei valori da considerare come "rotazione" si è stabilito un \textit{range} di rotazione assoluto rispetto al piano orizzontale, ed un offset di rotazione relativo. \textbf{Questo ci permette di individuare sia il posizionamento non favorevole del telefono, sia una sua rotazione o spostamento in modo repentino}. Quest'ultimo caso è importante perché ci ha permesso di ridurre al minimo i falsi positivi relativi all'azione dell'utente (ad esempio il prendere in mano il telefono) su un cellulare posizionato, fino a quel momento, in orizzontale. Abbiamo quindi introdotto un nuovo stato, lo stato di \textbf{MOVE}. La transizione da uno stato all'altro è determinata dai controlli fatti sui valori dei sensori.
+\section{Prima ottimizzazione}
 
-\begin{figure}[ht]
-\centering
-\label{fig:scs_sm1}
-\caption{Diagramma degli stati con Alive, Quake e Move}
-\digraph[width=0.7\textwidth]{StateMachine1}{
-rankdir=LR;
-Start [style=invis];
-Start->Alive [label="Service started"];
-Quake->Alive [label="Quake motion reported"];
-Alive->Quake [label="Quake motion detected"];
-Alive->Move  [label="Rotation off-range"];
-Move->Alive  [label="Rotation normal"];
-}
-\end{figure}
+Poiché il telefono può essere in posizione non ottimale per il rilevamento, si è deciso di procedere all'attivazione del servizio solo quando il telefono si trova in \textbf{posizione orizzontale} (con le tecniche specificate nel capitolo \ref{chapter:sensori}). Questa modifica permette di risparmiare le risorse, ed in particolar modo la batteria (tramite la diminuzione della pressione sulla CPU e memoria), quando il telefono è usato dall'utente oppure non poggiato su una superficie piana (ad esempio, il telefono si trova in una tasca oppure in una borsa). Per stabilire le soglie dei valori da considerare come "rotazione" si è stabilito un \textit{range} di rotazione assoluto rispetto al piano orizzontale, ed un offset di rotazione relativo. \textbf{Questo ci permette di individuare sia il posizionamento non favorevole del telefono, sia una sua rotazione o spostamento in modo repentino}. Quest'ultimo caso è importante perché ci ha permesso di ridurre al minimo i falsi positivi relativi all'azione dell'utente (ad esempio il prendere in mano il telefono) su un cellulare posizionato, fino a quel momento, in orizzontale. Abbiamo quindi introdotto un nuovo stato, lo stato di \textbf{MOVE}. La transizione da uno stato all'altro è determinata dai controlli fatti sui valori dei sensori.
 
 \begin{listing}[H]
 \caption{Codice di gestione della rotazione (alcune linee sono state accorpate per la stampa)}
@@ -288,7 +277,24 @@ else // Siamo in posizione stabile - FLAT - controllo se siamo in rotazione
 \end{minted}
 \end{listing}
 
-\paragraph{Seconda ottimizzazione} Una seconda ottimizzazione è stata apportata dallo spegnimento del servizio per un periodo stabilito quando il telefono si trova in uno stato non utile (\textit{MOVE} ad esempio). E' stato introdotto lo stato di \textbf{MOVE\_BACKOFF}, dove il servizio viene portato dopo un periodo di permanenza in \textit{MOVE}. Questo stato prevede lo \textbf{spegnimento} del servizio, con il rilascio di tutti i WakeLocks\footnote{Un "WakeLock" è un meccanismo di segnalazione, al sistema operativo Android, che permette di richiedere di lasciare attivi alcuni sottosistemi, come lo schermo od il chip WiFi - se nessuno richiede un WakeLock infatti, il cellulare va in uno stato di quiete per cui la CPU principale, il WiFi e altri chip vengono spenti}. Per decidere quando riattivare il servizio (e controllare se ci sono le condizioni per passare allo stato di \textit{ALIVE}) viene utilizzato un algoritmo di \textbf{backoff esponenziale}: al primo passaggio allo stato di \textit{MOVE\_BACKOFF} il tempo per il risveglio (e quindi il prossimo controllo) viene impostato a 30 secondi. Successivamente, se il controllo per il passaggio da \textit{MOVE} as \textit{ALIVE} fallisce (quindi rimaniamo dentro \textit{MOVE}) il tempo di \textit{MOVE\_BACKOFF} viene raddoppiato ogni volta, fino ad un massimo di 900 secondi.
+\begin{figure}[ht]
+\centering
+\label{fig:scs_sm1}
+\caption{Diagramma degli stati con Alive, Quake e Move}
+\digraph[width=0.7\textwidth]{StateMachine1}{
+Start [style=invis];
+rankdir=LR;
+Start->Alive [label="Service started"];
+Quake->Alive [label="Quake motion reported"];
+Alive->Quake [label="Quake motion detected"];
+Alive->Move  [label="Rotation off-range"];
+Move->Alive  [label="Rotation normal"];
+}
+\end{figure}
+
+\section{Seconda ottimizzazione}
+
+Una seconda ottimizzazione è stata apportata dallo spegnimento del servizio per un periodo stabilito quando il telefono si trova in uno stato non utile (\textit{MOVE} ad esempio). E' stato introdotto lo stato di \textbf{MOVE\_BACKOFF}, dove il servizio viene portato dopo un periodo di permanenza in \textit{MOVE}. Questo stato prevede lo \textbf{spegnimento} del servizio, con il rilascio di tutti i WakeLocks\footnote{Un "WakeLock" è un meccanismo di segnalazione, al sistema operativo Android, che permette di richiedere di lasciare attivi alcuni sottosistemi, come lo schermo od il chip WiFi - se nessuno richiede un WakeLock infatti, il cellulare va in uno stato di quiete per cui la CPU principale, il WiFi e altri chip vengono spenti}. Per decidere quando riattivare il servizio (e controllare se ci sono le condizioni per passare allo stato di \textit{ALIVE}) viene utilizzato un algoritmo di \textbf{backoff esponenziale}: al primo passaggio allo stato di \textit{MOVE\_BACKOFF} il tempo per il risveglio (e quindi il prossimo controllo) viene impostato a 30 secondi. Successivamente, se il controllo per il passaggio da \textit{MOVE} as \textit{ALIVE} fallisce (quindi rimaniamo dentro \textit{MOVE}) il tempo di \textit{MOVE\_BACKOFF} viene raddoppiato ogni volta, fino ad un massimo di 900 secondi.
 
 In questo modo il servizio, durante il periodo di \textbf{MOVE\_BACKOFF}, non consuma risorse e non detiene nessun tipo di WakeLock, permettendo quindi al telefono di andare in \textit{stand-by} e gestire il sistema come se SeismoCloud non fosse installato. \textbf{Il consumo determinato dalla nostra app mentre il telefono è in uso, oppure in posizione non orizzontale, è zero}. Il risveglio invece è gestito dal sistema operativo \textbf{Android}, il quale gestisce in modo ottimizzato gli interrupt basati sul tempo (come questo per la riattivazione del servizio), spesso (sui telefoni che lo supportano) con un chip dedicato a consumo molto ridotto.
 
@@ -309,7 +315,9 @@ Move->Move_Backoff  [label="Persistent Move state"];
 }
 \end{figure}
 
-\paragraph{Controllo della localizzazione} Una ulteriore ottimizzazione è stata l'introduzione del controllo sulla effettiva disponibilità del segnale GPS o dalla localizzazione da rete (utilizzata qualora non sia presente il GPS sul dispositivo, oppure non sia abilitato o ancora non sia presente il segnale satellitare): sia in fase iniziale, sia durante il funzionamento (stato \textbf{ALIVE}), il sistema controlla l'effettiva presenza di una localizzazione valida (sia essa il GPS o una posizione acquisita tramite rete cellulare). Questo permette di individuare diverse situazioni a noi sfavorevoli:
+\section{Controllo della localizzazione}
+
+Una ulteriore ottimizzazione è stata l'introduzione del controllo sulla effettiva disponibilità del segnale GPS o dalla localizzazione da rete (utilizzata qualora non sia presente il GPS sul dispositivo, oppure non sia abilitato o ancora non sia presente il segnale satellitare): sia in fase iniziale, sia durante il funzionamento (stato \textbf{ALIVE}), il sistema controlla l'effettiva presenza di una localizzazione valida (sia essa il GPS o una posizione acquisita tramite rete cellulare). Questo permette di individuare diverse situazioni a noi sfavorevoli:
 
 \begin{itemize}
 \item \textbf{Disattivazione del sensore di localizzazione} da parte dell'utente (tramite apposita opzione di Android) oppure perdita del segnale
@@ -320,11 +328,17 @@ In entrambi i casi il servizio non è più in grado di fare affidamento alla pos
 
 Poiché la precisione della localizzazione via rete cellulare è molto variabile (dai pochi metri a decine di km), è stato stabilito di non considerare localizzazioni via rete cellulare che hanno un errore maggiore di $\pm250$ metri.
 
-\paragraph{Controllo della connessione dati} Un altro fattore importante per una buona rilevazione è la presenza della connessione di rete (Wi-Fi o rete cellulare). Qualora venga a mancare la connessione Internet non si potrà avvertire per tempo il server: il sistema è quindi portato nella posizione di \textbf{MOVE\_BACKOFF} con l'algoritmo sopra citato. Questo permette di risparmiare batteria quando il segnale è assente.
+\section{Controllo della connessione dati}
 
-\paragraph{La batteria} Infine, è stata fatta una analisi sulla batteria e sul consumo. In prima istanza è stato considerato lo status di "\textbf{risparmio energia}" che Android attiva nel momento in cui la batteria raggiunge un valore prefissato (in genere, a meno di cambiamenti fatti dall'utente, il valore è il 15\% della capacità). Grazie ad un \textit{handler} viene intercettato questo evento e viene posto il servizio nella fase di \textbf{MOVE\_BACKOFF} indipendentemente dalle condizioni favorevoli sopra citate. Dopodiché si è provveduto ad effettuare uno studio approfondito, con diversi test, meglio specificata nel capitolo \ref{chapter:batteria}.
+Un altro fattore importante per una buona rilevazione è la presenza della connessione di rete (Wi-Fi o rete cellulare). Qualora venga a mancare la connessione Internet non si potrà avvertire per tempo il server: il sistema è quindi portato nella posizione di \textbf{MOVE\_BACKOFF} con l'algoritmo sopra citato. Questo permette di risparmiare batteria quando il segnale è assente.
 
-\paragraph{Conclusioni} Abbiamo quindi definito una serie di variabili che compongono il nostro \textbf{contesto di attivazione}, ovvero:
+\section{La batteria}
+
+Infine, è stata fatta una analisi sulla batteria e sul consumo. In prima istanza è stato considerato lo status di "\textbf{risparmio energia}" che Android attiva nel momento in cui la batteria raggiunge un valore prefissato (in genere, a meno di cambiamenti fatti dall'utente, il valore è il 15\% della capacità). Grazie ad un \textit{handler} viene intercettato questo evento e viene posto il servizio nella fase di \textbf{MOVE\_BACKOFF} indipendentemente dalle condizioni favorevoli sopra citate. Dopodiché si è provveduto ad effettuare uno studio approfondito, con diversi test, meglio specificata nel capitolo \ref{chapter:batteria}.
+
+\section{Conclusioni}
+
+Abbiamo quindi definito una serie di variabili che compongono il nostro \textbf{contesto di attivazione}, ovvero:
 
 \begin{itemize}
 \item Rotazione/posizione favorevole o no alla lettura del dato
@@ -380,9 +394,13 @@ Alive->Move_Backoff  [label="Internet unavailable"];
 
 Ogni modello di smartphone Android è dotato di un numero variabile di sensori, a seconda del produttore e della fascia di prezzo in cui si vuole inserire il dispositivo. Mentre i modelli \textit{top} hanno un numero impressionante di sensori (ad esempio il Samsung S4 è dotato di ben 34 sensori accessibili all'utente), altri telefoni hanno solo alcune tipologie di sensori.
 
-\paragraph{Di cosa abbiamo bisogno} Il servizio della App SeismoCloud deve individuare le vibrazioni, quindi sicuramente è necessario l'accelerometro. Inoltre deve individuare, come abbiamo visto nel capitolo precedente, quando si trova poggiato con una inclinazione non utile per la rilevazione: per questo abbiamo bisogno del giroscopio. Inizialmente il codice fu scritto per questi due sensori, ma effettuando i test della applicazione abbiamo scoperto che molti telefoni di fascia "economica" sono sprovvisti del giroscopio. Poiché questi modelli di telefono sono i più diffusi, è stato effettuato uno studio per capire come poter ovviare al problema.
+\section{Di cosa abbiamo bisogno}
 
-\paragraph{La fascia economica} Il problema della mancanza del giroscopio probabilmente è molto conosciuto agli sviluppatori Android, i quali hanno messo a disposizione una libreria che sfrutta un altro sensore, diffuso tanto quanto l'accelerometro: il magnetometro. Grazie ai valori letti dal magnetometro e dall'accelerometro, è possibile calcolare l'attuale rotazione del telefono (rispetto al piano orizzontale).
+Il servizio della App SeismoCloud deve individuare le vibrazioni, quindi sicuramente è necessario l'accelerometro. Inoltre deve individuare, come abbiamo visto nel capitolo precedente, quando si trova poggiato con una inclinazione non utile per la rilevazione: per questo abbiamo bisogno del giroscopio. Inizialmente il codice fu scritto per questi due sensori, ma effettuando i test della applicazione abbiamo scoperto che molti telefoni di fascia "economica" sono sprovvisti del giroscopio. Poiché questi modelli di telefono sono i più diffusi, è stato effettuato uno studio per capire come poter ovviare al problema.
+
+\section{La fascia economica}
+
+Il problema della mancanza del giroscopio probabilmente è molto conosciuto agli sviluppatori Android, i quali hanno messo a disposizione una libreria che sfrutta un altro sensore, diffuso tanto quanto l'accelerometro: il magnetometro. Grazie ai valori letti dal magnetometro e dall'accelerometro, è possibile calcolare l'attuale rotazione del telefono (rispetto al piano orizzontale).
 
 
 \begin{listing}[H]
@@ -408,7 +426,9 @@ private synchronized float[] computeOrientation() {
 \end{minted}
 \end{listing}
 
-\paragraph{Alla ricerca dell'ottimizzazione} Poiché il magnetometro e l'accelerometro forniscono un dato affidabile quanto basta per rilevare la rotazione sul piano orizzontale del telefono, e poiché la frequenza di rilevazione del magnetometro è impostabile (al contrario del giroscopio), si è deciso di procedere con un tentativo di ottimizzazione che includesse due fasi nella fase \textbf{ALIVE} (fase di rilevamento dei valori dell'accelerometro): sono state introdotte due fasi \textbf{ALIVE\_SLOW} e \textbf{ALIVE\_FAST}. Ogni fase registrava sensori differenti con frequenze differenti:
+\section{Alla ricerca dell'ottimizzazione}
+
+Poiché il magnetometro e l'accelerometro forniscono un dato affidabile quanto basta per rilevare la rotazione sul piano orizzontale del telefono, e poiché la frequenza di rilevazione del magnetometro è impostabile (al contrario del giroscopio), si è deciso di procedere con un tentativo di ottimizzazione che includesse due fasi nella fase \textbf{ALIVE} (fase di rilevamento dei valori dell'accelerometro): sono state introdotte due fasi \textbf{ALIVE\_SLOW} e \textbf{ALIVE\_FAST}. Ogni fase registrava sensori differenti con frequenze differenti:
 
 \begin{itemize}
 \item \textbf{ALIVE\_SLOW}: registrati \textbf{magnetometro} e \textbf{accelerometro} con tempi di rilevazione di $100ms$
@@ -432,7 +452,9 @@ Alive_Slow->Alive_Fast  [label="Significant rotation detected"];
 
 L'ipotesi era che questa diminuzione di frequenza fosse apprezzabile, sia dal punto di vista del carico sulla CPU, sia dal punto di vista del carico della batteria.
 
-\paragraph{Test finali e conclusioni} Tuttavia, successivi test hanno rivelato come questa differenza ipotizzata tra le due frequenze di lettura sia praticamente nulla. Inoltre, la mancanza del giroscopio in alcuni telefoni aveva significato scrivere più codice per gestire tutti i casi. Infine, una indagine più approfondita dal punto di vista energetico ha svelato\footnote{http://www.edn.com/design/sensors/4431747/Lower-power-and-cost-for-Android-device-motion-sensing-using-mCube-s-iGyro-} \footnote{https://www.sparkfun.com/pages/accel\_gyro\_guide} che il giroscopio ha un consumo enormemente maggiore rispetto all'accelerometro e al magnetometro, i quali tra l'altro risultano integrati in un solo chip (tabella \ref{table:consumosensori}). Si è quindi deciso di procedere eliminando il requisito del giroscopio e di mantenere solo una fase di \textbf{ALIVE} contenente la registrazione dei sensori \textbf{accelerometro} e \textbf{magnetometro} alla velocità stabilita.
+\section{Test finali e conclusioni}
+
+Tuttavia, successivi test hanno rivelato come questa differenza ipotizzata tra le due frequenze di lettura sia praticamente nulla. Inoltre, la mancanza del giroscopio in alcuni telefoni aveva significato scrivere più codice per gestire tutti i casi. Infine, una indagine più approfondita dal punto di vista energetico ha svelato\footnote{http://www.edn.com/design/sensors/4431747/Lower-power-and-cost-for-Android-device-motion-sensing-using-mCube-s-iGyro-} \footnote{https://www.sparkfun.com/pages/accel\_gyro\_guide} che il giroscopio ha un consumo enormemente maggiore rispetto all'accelerometro e al magnetometro, i quali tra l'altro risultano integrati in un solo chip (tabella \ref{table:consumosensori}). Si è quindi deciso di procedere eliminando il requisito del giroscopio e di mantenere solo una fase di \textbf{ALIVE} contenente la registrazione dei sensori \textbf{accelerometro} e \textbf{magnetometro} alla velocità stabilita.
 
 \begin{table}[h]
 \centering
@@ -452,7 +474,9 @@ L3G4200D\footnote{https://cdn.sparkfun.com/datasheets/Sensors/Gyros/3-Axis/CD002
 
 Una risorsa molto importante, dal punto di vista degli utenti, è la batteria: mentre i vecchi telefoni non avevano richieste particolari, in termini di quantità di energia elettrica, i nuovi smartphones sono voraci di elettricità. Di consequenza, l'obiettivo è quello di portare l'applicazione ad impattare il meno possibile sul consumo.
 
-\paragraph{La curva di scarica} In parte, le ottimizzazioni già presentate nel capitolo \ref{chapter:contesti} hanno portato ad un risparmio energetico; tuttavia si è voluto studiare un sistema più "aggressivo" per portare i consumi al minimo possibile. Sono partito quindi da quello che è il principale requisito per l'utente: \textbf{il telefono deve arrivare a fine giornata}, ovvero nessuna applicazione deve consumare così tanto da rendere il telefono scarico prima di avere una fonte di energia. Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente elettrica per cena, facendo una rapida analisi sui dati presenti sul \textit{database} è stato identificato, come \textit{target}, una \textbf{carica residua del 15\% alle ore 20:00}, partendo dal 100\% alle ore 08:00. E' stata quindi calcolata una curva lineare di scarica, con lo scopo di tenere il servizio attivo solo quando è sopra la soglia.
+\section{La curva di scarica}
+
+In parte, le ottimizzazioni già presentate nel capitolo \ref{chapter:contesti} hanno portato ad un risparmio energetico; tuttavia si è voluto studiare un sistema più "aggressivo" per portare i consumi al minimo possibile. Sono partito quindi da quello che è il principale requisito per l'utente: \textbf{il telefono deve arrivare a fine giornata}, ovvero nessuna applicazione deve consumare così tanto da rendere il telefono scarico prima di avere una fonte di energia. Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente elettrica per cena, facendo una rapida analisi sui dati presenti sul \textit{database} è stato identificato, come \textit{target}, una \textbf{carica residua del 15\% alle ore 20:00}, partendo dal 100\% alle ore 08:00. E' stata quindi calcolata una curva lineare di scarica, con lo scopo di tenere il servizio attivo solo quando è sopra la soglia.
 
 \begin{equation}
 \gamma = {85 \over 720}
