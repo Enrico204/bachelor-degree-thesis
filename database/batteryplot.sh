@@ -105,8 +105,8 @@ set grid
 
 set style data lines
 
-plot "/tmp/batteryplot.dat" using 1:2 title "Current", \
-	"batteryplot_nofollow.dat" using 1:2 title "Context-based", \
+plot "/tmp/batteryplot.dat" using 1:2 title "Discharge-curve alg", \
+	"batteryplot_nofollow.dat" using 1:2 title "Context-based alg", \
 	"batteryplot_orig.dat" using 1:2 title "Basic"
 
 EOF

@@ -5,7 +5,8 @@
 \usepackage{graphviz}
 \usepackage{amsmath}
 
-\usepackage{minted}
+\usepackage[chapter]{minted}
+\usepackage{adjustbox}
 
 % import package
 \usepackage{FrontespizioSapienza}
@@ -20,10 +21,6 @@
 \FSSRelatore{Emanuele Panizzi}
 \FSSCorrelatore{}
 \FSSAnnoAccademico{2016/2017}
-
-
-% Grafico curva di scarica: cambiare nome a "Current"
-% dot: grafici più grandi
 
 
 \begin{document}
@@ -138,7 +135,14 @@ Il progetto SeismoCloud nasce dalla collaborazione dall'\textbf{Università degl
 
 Già da un decennio alcuni luoghi più sensibili al terremoto si stanno dotando di infrastrutture di \textit{early detection}. Il primo Paese nel 2006 è stato il Giappone, con un sistema denominato \textbf{Earthquake Early Warning}, installato dalla \textbf{JMA} (Japan Meteorological Agency). Tale sistema è composto da 4325 sismometri su tutto il territorio giapponese\footnote{Fonte: JMA, Japan Meteorological Agency, http://www.jma.go.jp}. Il funzionamento è il seguente: quando due o più sensori individuano una scossa di terremoto, il sistema invia degli avvisi immediati attraverso radio, TV e cellulari. L'efficacia\footnote{Per "efficacia" si intende la percentuale di allarmi emessi subito dopo l'individuazione di una onda-P aventi come magnitudo $\pm1$ il valore misurato per il terremoto} di questo sistema varia dal 28\% al 76\% \footnote{Fonte: https://en.wikipedia.org/wiki/Earthquake\_Early\_Warning\_(Japan)}.
 
-Tuttavia comporre reti di \textit{early detection} molto accurate e molto rapide, con gli stessi sismometri installati per lo studio dei terremoti, è una operazione \textbf{complessa} oltre che \textbf{costosa}: si deve posizionare il sismometro nel terreno (a volte a decine di metri di profondità), si deve mantenere un collegamento stabile e affidabile alla rete di rilevamento oltre che l'energia per far funzionare gli apparati in loco. Ecco perché SeismoCloud affronta il problema con una soluzione \textbf{crowd-sourced}: quasi tutti gli smartphone moderni sono dotati di sensori in grado di rilevare le vibrazioni (oltre che la posizione geografica) in modo relativamente accurato\footnote{Olson, Michael; Liu Annie; Faulkner Matthew; Chandy K. Mani; "Rapid Detection of Rare Geospatial Events: Earthquake Warning Applications" in DEBS '11, pp. 89-100, July 2011, ISBN 978-1-4503-0423-8}: questo permette ad ogni utilizzatore di un cellulare di essere un potenziale contributore della rete. Inoltre, con l'esplosione dell'\textit{IoT}\footnote{\textit{Internet of Things}, letteralmente \textit{internet delle cose} è l'insieme dei piccoli dispositivi, che eseguono un gruppo di funzioni ristrette (ad esempio, accendi/spegni la luce), connessi alla rete Internet} ed il costo contenuto dell'hardware di questa categoria, reti hobbystiche e comunitarie (come ad esempio le Mesh Networks) possono contribuire in modo aperto e libero.
+\begin{wrapfigure}{r}{0.25\textwidth}
+\centering
+\label{fig:scsapp}
+\caption{Schermata principale dell'applicazione \textbf{SeismoCloud}}
+\includegraphics[width=0.25\textwidth]{app/main}
+\end{wrapfigure}
+
+Tuttavia comporre reti di \textit{early detection} molto accurate e molto rapide, con gli stessi sismometri installati per lo studio dei terremoti, è una operazione \textbf{complessa} oltre che \textbf{costosa}: si deve posizionare il sismometro nel terreno (a volte a decine di metri di profondità), si deve mantenere un collegamento stabile e affidabile alla rete di rilevamento oltre che l'energia per far funzionare gli apparati in loco. Ecco perché SeismoCloud affronta il problema con una soluzione \textbf{crowd-sourced}: quasi tutti gli smartphone moderni sono dotati di sensori in grado di rilevare le vibrazioni (oltre che la posizione geografica) in modo relativamente accurato\footnote{Olson, Michael; Liu Annie; Faulkner Matthew; Chandy K. Mani; "Rapid Detection of Rare Geospatial Events: Earthquake Warning Applications" in DEBS '11, pp. 89-100, July 2011, ISBN 978-1-4503-0423-8}: questo permette ad ogni utilizzatore di un cellulare, tramite una app denominata \textbf{SeismoCloud}, di contribuire alla rilevazione dei terremoti. Inoltre, con l'esplosione dell'\textit{IoT}\footnote{\textit{Internet of Things}, letteralmente \textit{internet delle cose} è l'insieme dei piccoli dispositivi, che eseguono un gruppo di funzioni ristrette (ad esempio, accendi/spegni la luce), connessi alla rete Internet} ed il costo contenuto dell'hardware di questa categoria, reti hobbystiche e comunitarie (come ad esempio le Mesh Networks) possono contribuire in modo aperto e libero.
 
 \section{Architettura della rete SeismoCloud}
 
@@ -187,11 +191,13 @@ Threshold = Mean + Variance * \sigma
 
 Il rilevamento, con l'algoritmo sopra citato, avviene in background rispetto all'attività utente: in questo modo si consente il multitasking sul dispositivo e si mantiene l'applicazione sempre attiva in modo trasparente per l'utente.
 
+
 \begin{figure}[ht]
-\centering
-\label{fig:scstrace}
-\caption{Grafico dei dati estratti da un sensore SeismoCloud. La linea rossa rappresenta la soglia del dispositivo, le linee verdi, blu e azzurra rappresentano le eventuali soglie alternative calcolate con un valore moltiplicativo del server differente}
-\includegraphics[width=1.5\textwidth,angle=90]{database/984fee0055c9}
+
+\begin{adjustbox}{addcode={\begin{minipage}{\width}}{
+	\caption{Grafico dei dati estratti da un sensore SeismoCloud. La linea rossa rappresenta la soglia del dispositivo, le linee verdi, blu e azzurra rappresentano le eventuali soglie alternative calcolate con un valore moltiplicativo del server differente}\label{fig:scstrace}\end{minipage}},rotate=90,center}
+      \includegraphics[width=1.2\textwidth]{database/984fee0055c9}
+  \end{adjustbox}
 \end{figure}
 
 \chapter{Ottimizzazione energetica}
@@ -224,6 +230,7 @@ Alive->Quake [label="Quake motion detected"];
                linenos,
                numbersep=5pt,
                gobble=0,
+               fontsize=\small,
                frame=lines,
                framesep=2mm]{java}
 boolean inRotation = Math.abs(gravity[2]) < gravityThreshold
@@ -285,7 +292,7 @@ else // Siamo in posizione stabile - FLAT - controllo se siamo in rotazione
 \centering
 \label{fig:scs_sm1}
 \caption{Diagramma degli stati con Alive, Quake e Move}
-\digraph[width=0.7\textwidth]{StateMachine1}{
+\digraph[width=\textwidth]{StateMachine1}{
 Start [style=invis];
 rankdir=LR;
 Start->Alive [label="Service started"];
@@ -306,14 +313,24 @@ In questo modo il servizio, durante il periodo di \textbf{MOVE\_BACKOFF}, non co
 \caption{Diagramma degli stati con Alive, Quake, Move e Move\_Backoff}
 \digraph[width=\textwidth]{StateMachine2}{
 rankdir=LR;
-Start [style=invis];
-Start->Alive [label="Service started"];
+{
 Quake->Alive [label="Quake motion reported"];
 Alive->Quake [label="Quake motion detected"];
 Alive->Move  [label="Rotation off-range"];
 Move->Alive  [label="Rotation normal"];
 Move_Backoff->Move  [label="Interrupt (timeout)"];
 Move->Move_Backoff  [label="Persistent Move state"];
+}
+{
+rankdir=TB;
+Start [style=invis];
+Start->Alive [label="Service started"];
+}
+{
+rankdir=TB;
+rank=min;
+Move_Backoff;
+}
 }
 \end{figure}
 
@@ -330,7 +347,9 @@ Poiché la precisione della localizzazione via rete cellulare è molto variabile
 
 \paragraph{Controllo della connessione dati} Un altro fattore importante per una buona rilevazione è la presenza della connessione di rete (Wi-Fi o rete cellulare). Qualora venga a mancare la connessione Internet non si potrà avvertire per tempo il server: il sistema è quindi portato nella posizione di \textbf{MOVE\_BACKOFF} con l'algoritmo sopra citato. Questo permette di risparmiare batteria quando il segnale è assente.
 
-\paragraph{La batteria} Infine, è stata fatta una analisi sulla batteria e sul consumo. In prima istanza è stato considerato lo status di "\textbf{risparmio energia}" che Android attiva nel momento in cui la batteria raggiunge un valore prefissato (in genere, a meno di cambiamenti fatti dall'utente, il valore è il 15\% della capacità). Grazie ad un \textit{handler} viene intercettato questo evento e viene posto il servizio nella fase di \textbf{MOVE\_BACKOFF} indipendentemente dalle condizioni favorevoli sopra citate. Dopodiché si è provveduto ad effettuare uno studio approfondito, con diversi test, meglio specificata nel capitolo \ref{section:batteria}.
+Per l'identificazione dello stato di \textit{mancanza della connessione dati} si sono utilizzate le API di Android: il sistema operativo infatti fornisce già informazioni riguardo ai cambimenti di stato della connessione attraverso il \textit{dispatch} di un evento informativo.
+
+\paragraph{La batteria} Infine, è stata fatta una analisi sulla batteria e sul consumo. In prima istanza è stato considerato lo status di "\textbf{risparmio energia}" che Android attiva nel momento in cui la batteria raggiunge un valore prefissato (in genere, a meno di cambiamenti fatti dall'utente, il valore è il 15\% della capacità). Grazie ad un \textit{handler} viene intercettato questo evento e viene posto il servizio nella fase di \textbf{MOVE\_BACKOFF} indipendentemente dalle condizioni favorevoli sopra citate. Dopodiché si è provveduto ad effettuare uno studio approfondito, con diversi test, meglio specificata nella sezione \ref{section:batteria}.
 
 \paragraph{Conclusioni} Abbiamo quindi definito una serie di variabili che compongono il nostro \textbf{contesto di attivazione}, ovvero:
 
@@ -361,9 +380,8 @@ Algoritmo ottimizzato & 6 ore e 36 min   & 11 ore e 48 min  & 5 ore 36 min &
 \caption{Diagramma degli stati per i contesti di attivazione}
 \label{fig:scs_sm3}
 \digraph[width=\textwidth]{StateMachine3}{
-rankdir=LR;
-Start [style=invis];
-Start->Alive [label="Service started"];
+rankdir=TB;
+{
 Quake->Alive [label="Quake motion reported"];
 Alive->Quake [label="Quake motion detected"];
 Alive->Move  [label="Rotation off-range"];
@@ -374,19 +392,54 @@ Alive->Move_Backoff  [label="Location unavailable/move"];
 Alive->Move_Backoff  [label="Android Power safe mode"];
 Alive->Move_Backoff  [label="Internet unavailable"];
 }
+{
+Start [style=invis];
+Start->Alive [label="Service started"];
+}
+{
+rank=sink;
+Move_Backoff;
+}
+}
 \end{figure}
 
 \begin{figure}[ht]
 \centering
-\caption{Comparazione (valori medi in un giorno) dell'utilizzo delle risorse CPU e sensori da parte degli algoritmi con (\textit{Current}) e senza (\textit{Original}) contesto di attivazione: si può notare come il tempo di inattività in blu (\textbf{MOVE\_BACKOFF}) sia una porzione notevole del tempo totale}
+\caption{Comparazione (valori medi in un giorno) dell'utilizzo delle risorse CPU e sensori da parte degli algoritmi con (\textit{Context-based}) e senza (\textit{Basic}) contesto di attivazione: si può notare come il tempo di inattività in blu (\textbf{MOVE\_BACKOFF}) sia una porzione notevole del tempo totale}
 \includegraphics[width=\textwidth]{database/usageplot}
 \label{fig:usagechart}
 \end{figure}
 
+\clearpage
 
 \section{La comunicazione con il front-end}
 
-Qui si descrive la politica utilizzata per mantere l'applicazione attiva (notifica permanente) poiché Android pone le applicazioni in sleep. Si spiega anche il wakelock sulla CPU, la sospensione dell'aggiornamento dati in background delle activity quando non sono in vista.
+\paragraph{Un requisito di HCI} Effettuando alcuni studi di \textit{Human-Computer Interaction} era stato stabilito di inserire, nella schermata principale dell'applicazione, un box contenente il grafico dato dai valori di accelerazione (formula~\ref{eq:vettoreris}) nel tempo. Lo scopo di questo box è di mostrare all'utente quello che avviene e qual è lo stato del servizio di rilevamento in background.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.7\textwidth]{app/activitychart2}
+\caption{Porzione della schermata principale con il grafico del segnale dell'accelerometro: \textbf{1}: nome del sismometro (scelto dall'utente); \textbf{2}: Posizione georeferenziata; \textbf{3}: Indicatore di stato, verde: servizio attivo, rosso: vibrazione rilevata, grigio: servizio spento; \textbf{4}: Grafico del segnale dell'accelerometro}
+\label{fig:activitychart}
+\end{figure}
+
+\paragraph{Adeguamento del codice} Per poter mostrare lo stato del servizio all'utente, è stato aggiunto un indicatore di stato (punto \textbf{3} figura \ref{fig:activitychart}) ed è stato inserito un testo descrittivo al posto del grafico nei seguenti casi:
+
+\begin{itemize}
+\item Servizio in stato di \textbf{MOVE}, con l'indicazione per l'utente di poggiare il telefono su una superficie orizzontale
+\item Servizio in \textbf{MOVE\_BACKOFF} in caso di localizzazione o rete assente, con il testo relativo
+\end{itemize}
+
+Con le nuove ottimizzazioni inserite nei paragrafi precedenti, tuttavia, \textbf{il servizio non è sempre disponibile}: ad esempio in caso di batteria bassa (o sotto la soglia di scarica, sezione \ref{section:batteria}), o più semplicemente quando l'utente apre la app mentre ha il telefono in mano, il servizio risulterà fermo (per effetto dei \textbf{contesti di attivazione}, sezione \ref{section:contesti}). Poiché è importante che il servizio abbia un funzionamento coerente con i criteri di risparmio energetico che ci siamo prefissati, ma nello stesso tempo è importante fornire all'utente una informazione utile, è stata introdotta anche la seguente modifica, ai contesti di attivazione sopra citati, che include questi vincoli:
+
+\begin{itemize}
+\item Il passaggio da \textbf{MOVE} a \textbf{MOVE\_BACKOFF}, nei casi di \textbf{batteria bassa} (sotto la curva di scarica\footnote{Vedi sezione \ref{section:batteria}} o $<= 15\%$) o di \textbf{permanenza nello stato di MOVE}, avviene solo se la app è chiusa (ed è quindi attivo solo il servizio in background)
+\item Se il servizio è spento (è già in \textbf{MOVE\_BACKOFF}) viene attivato
+\end{itemize}
+
+In sostanza, se l'utente \textbf{sceglie volontariamente} di avere l'informazione sul servizio, tale servizio deve essere attivo (se possibile, ovvero a meno di mancanza di rete/localizzazione).
+
+\paragraph{Test di utilizzo} Diversi test di HCI, effettuati prendendo un campione di utenti rappresentativo, hanno confermato queste modifiche: la comunicazione con l'utente era rimasta pressoché invariata rispetto all'informazione fornita già in precedenza, con l'aggiunta utile degli stati del servizio tramite l'indicatore colorato ed il testo presente al posto del grafico nei casi sopra citati.
 
 \section{I sensori}
 \label{section:sensori}
@@ -505,7 +558,7 @@ Dopo averla applicata sui dispositivi di test, abbiamo subito notato un enorme c
 
 \begin{figure}[h]
 \centering
-\caption{Capacità residua batteria (media) prima e dopo l'ottimizzazione: \textit{Basic} rappresenta l'algoritmo di base senza ottimizzazioni, \textit{Context-based} rappresenta l'algoritmo che utilizza solo i contesti di attivazione, mentre \textit{Current} rappresenta l'algoritmo corrente, che sfrutta sia i contesti di attivazione che la curva di scarica}
+\caption{Capacità residua batteria (media) prima e dopo l'ottimizzazione: \textbf{Basic} rappresenta l'algoritmo di base senza ottimizzazioni, \textbf{Context-based alg} rappresenta l'algoritmo che utilizza solo i contesti di attivazione, mentre \textbf{Discharge-curve alg} rappresenta l'algoritmo corrente, che sfrutta sia i contesti di attivazione che la curva di scarica}
 \includegraphics[width=\textwidth]{database/batteryplot}
 \label{fig:batterychart}
 \end{figure}
@@ -562,7 +615,15 @@ Si spiega come l'introduzione dell'MQTT abbia ridotto il carico sulla rete per l
 
 Parlare del meccanismo di Pushback per l'invio dei dati (ad esempio survey) in background in modo ottimizzato in caso di problemi di rete (invio asincrono).
 
-\chapter{Ottimizzazione dell'uso di memoria nel codice}
+\chapter{Ottimizzazione dell'uso di memoria e CPU nel codice}
+
+\section{Transito dati tra front-end e servizio in background}
+
+\paragraph{Activity lifecycle} Con la frase \textit{Activity lifecycle} si intende il ciclo di vita di una schermata di una applicazione Android.
+
+Qui si descrive la politica utilizzata per mantere l'applicazione attiva (notifica permanente) poiché Android pone le applicazioni in sleep. Si spiega anche il wakelock sulla CPU, la sospensione dell'aggiornamento dati in background delle activity quando non sono in vista.
+
+\section{Calcolo media e varianza online}
 
 Per ogni valore rilevato nello stato \textit{ALIVE}, inoltre, vengono aggiornati i seguenti valori:
 \begin{equation}

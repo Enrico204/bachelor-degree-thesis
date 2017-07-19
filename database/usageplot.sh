@@ -33,8 +33,8 @@ EOF
 # Array values: ACTIVE TIME (avg), TOTAL TIME (avg), MOVE TIME (avg)
 RIS=($(echo "$QUERY" | mysql -N -B -h $MYSQL_HOST -u $MYSQL_USER -p$MYSQL_PASS $MYSQL_DB | tr '\t' ' '))
 BLACK=$(echo "86400 - ${RIS[1]}" | bc)
-echo "Current ${RIS[0]} ${RIS[2]} ${BLACK}" > /tmp/usageplot.dat
-echo "Original  ${RIS[1]} 0 ${BLACK}" >> /tmp/usageplot.dat
+echo "Context-based ${RIS[0]} ${RIS[2]} ${BLACK}" > /tmp/usageplot.dat
+echo "Basic  ${RIS[1]} 0 ${BLACK}" >> /tmp/usageplot.dat
 #echo "Total time: ${RIS[1]}"
 #echo "Alive time: ${RIS[0]}"
 
