@@ -84,7 +84,7 @@ Per misurare l'energia sprigionata da un evento sismico, individuare il punto di
 \caption{La rete IV - Italian Seismic Network}
 \label{fig:retesensori}
 \centering
-\includegraphics[width=10cm]{introduzione/rete_ingv}
+\includegraphics[width=\textwidth]{introduzione/rete_ingv}
 \end{figure}
 
 \begin{figure}[ht]
@@ -104,7 +104,7 @@ Infine possiamo distinguere il punto di origine del terremoto sotto la superfici
 \caption{Epicentro, ipocentro (o focus) e faglia (\textit{fault plane})}
 \label{fig:epiipo}
 \centering
-\includegraphics[scale=0.5]{introduzione/epicenter_diagram}
+\includegraphics[scale=0.6]{introduzione/epicenter_diagram}
 \end{figure}
 
 
@@ -121,32 +121,45 @@ Come in tutte le calamità naturali (e non), abbiamo diversi ambiti da considera
 
 Nella fattispecie dei terremoti, la \textbf{previsione} è tutt'ora materiale di studio da parte del mondo scientifico poiché risulta impossibile\footnote{Uyeda, Seiya; Nagao, Toshiyasu; Kamogawa, Masashi (2009-05-29), "Short-term earthquake prediction: Current status of seismo-electromagnetics", Tectonophysics, 470 (3–4): 205–213} prevedere, allo stato attuale, quando e dove accadrà il prossimo sisma\footnote{Alessandro Amato (2016). Sotto i nostri piedi. Codice edizioni, Torino. ISBN 978-8875785727}. Nel tempo, tuttavia, i vari dati raccolti riguardo ai terremoti hanno permesso di costruire delle mappe di pericolosità sismica\footnote{Pubblicate per la prima volta nel 2004 e poi aggiornate man mano: http://zonesismiche.mi.ingv.it/}, le quali indicano zone con maggiore probabilità di terremoti importanti, andando ad integrare le azioni di informazione e di formazione che fanno parte della \textbf{prevenzione}.
 
-\begin{wrapfigure}[12]{r}{0.25\textwidth}
-\centering
-\label{fig:timelinecom}
-\includegraphics[width=0.25\textwidth]{introduzione/tempi_comunicazioni}
-\end{wrapfigure}
+Nella gestione dell'emergenza possiamo riportare quello che avviene allo stato attuale all'accadere di un terremoto, rilevato (per l'Italia) dalla rete di sismometri di INGV: nel momento in cui un sisma viene percepito da un numero congruo di stazioni di rilevamento, il sistema effettua verifiche e calcoli e:
+\begin{itemize}
+\item \textbf{entro due minuti}, è in grado di fornire una prima stima della magnitudo, dell'epicentro e della profondità (dati che poi vengono comunicati alla Protezione Civile)
+\item Successivamente, \textbf{entro 5 minuti} dal sisma, tutte le stazioni di rilevamento sono utilizzate per individuare le caratteristiche del terremoto in modo più preciso.
+\item Infine, \textbf{entro 30 minuti}, una verifica manuale da parte dei tecnici e ingegneri di INGV permette di avere il dato definitivo che viene di nuovo comunicato alla Protezione Civile e al pubblico\footnote{La pubblicazione avviene sul sito del Centro Nazionale Terremoti http://cnt.rm.ingv.it/ oppure tramite le pagine ufficiali sui principali Social Network}.
+\end{itemize}
 
-Nella gestione dell'emergenza possiamo riportare quello che avviene allo stato attuale all'accadere di un terremoto, rilevato (per l'Italia) dalla rete di sismometri di INGV: nel momento in cui un sisma viene percepito da un numero congruo di stazioni di rilevamento, il sistema effettua verifiche e calcoli e, \textbf{entro due minuti}, è in grado di fornire una prima stima della magnitudo, dell'epicentro e della profondità (dati che poi vengono comunicati alla Protezione Civile). Successivamente, \textbf{entro 5 minuti} dal sisma, tutte le stazioni di rilevamento sono utilizzate per individuare le caratteristiche del terremoto in modo più preciso. Infine, \textbf{entro 30 minuti}, una verifica manuale da parte dei tecnici e ingegneri di INGV permette di avere il dato definitivo che viene di nuovo comunicato alla Protezione Civile e al pubblico\footnote{La pubblicazione avviene sul sito del Centro Nazionale Terremoti http://cnt.rm.ingv.it/ oppure tramite le pagine ufficiali sui principali Social Network}.
+\pagebreak
 
 \section{Il progetto SeismoCloud}
 
-Il progetto SeismoCloud nasce dalla collaborazione dall'\textbf{Università degli Studi di Roma "La Sapienza"} e l'\textbf{Istituto Nazionale di Geofisica e Vulcanologia}. L'obiettivo di questo progetto è quello di implementare un sistema di \textbf{early warning} in \textit{crowdsourcing}\footnote{Un sistema si dice in \textit{crowdsourcing} quando i dati per il suo funzionamento vengono forniti dagli stessi utenti} per i terremoti, in grado di inserirsi nel \textit{gap} presente dal momento in cui il terremoto accade, al momento in cui INGV è in grado di individuarlo. Lo scopo del sistema quindi è di individuare i terremoti \textit{in tempo reale}, alla loro apparizione nell'ipocentro, ed \textbf{anticipare} l'onda sismica (che viaggia, mediamente, ad una velocità di 5 km/s) avvertendo la popolazione nel raggio di azione del terremoto (questo sistema è chiamato, appunto, \textit{early warning}).
+\begin{wrapfigure}{r}{0.15\textwidth}
+\centering
+\label{fig:seismocloudlogos}
+\includegraphics[width=0.15\textwidth]{app/seismocloud}
+\includegraphics[width=0.15\textwidth]{logo-sapienza-mini}
+\includegraphics[width=0.15\textwidth]{app/ingv}
+\end{wrapfigure}
+
+Il progetto SeismoCloud nasce dalla collaborazione dell'\textbf{Università degli Studi di Roma "La Sapienza"} e l'\textbf{Istituto Nazionale di Geofisica e Vulcanologia}. L'obiettivo di questo progetto è quello di implementare un sistema di \textbf{early warning} in \textit{crowdsourcing}\footnote{Un sistema si dice in \textit{crowdsourcing} quando i dati per il suo funzionamento vengono forniti dagli stessi utenti} per i terremoti, in grado di inserirsi nel \textit{gap} presente dal momento in cui il terremoto accade, al momento in cui INGV è in grado di individuarlo. Lo scopo del sistema quindi è di individuare i terremoti \textit{in tempo reale}, alla loro apparizione nell'ipocentro, ed \textbf{anticipare} l'onda sismica (che viaggia, mediamente, ad una velocità di 5 km/s) avvertendo la popolazione nel raggio di azione del terremoto (questo sistema è chiamato, appunto, \textit{early warning}).
 
 Già da un decennio alcuni luoghi più sensibili al terremoto si stanno dotando di infrastrutture di \textit{early detection}. Il primo Paese nel 2006 è stato il Giappone, con un sistema denominato \textbf{Earthquake Early Warning}, installato dalla \textbf{JMA} (Japan Meteorological Agency). Tale sistema è composto da 4325 sismometri su tutto il territorio giapponese\footnote{Fonte: JMA, Japan Meteorological Agency, http://www.jma.go.jp}. Il funzionamento è il seguente: quando due o più sensori individuano una scossa di terremoto, il sistema invia degli avvisi immediati attraverso radio, TV e cellulari. L'efficacia\footnote{Per "efficacia" si intende la percentuale di allarmi emessi subito dopo l'individuazione di una onda-P aventi come magnitudo $\pm1$ il valore misurato per il terremoto} di questo sistema varia dal 28\% al 76\% \footnote{Fonte: https://en.wikipedia.org/wiki/Earthquake\_Early\_Warning\_(Japan)}.
 
-\begin{wrapfigure}{r}{0.25\textwidth}
-\centering
-\label{fig:scsapp}
-\caption{Schermata principale dell'applicazione \textbf{SeismoCloud}}
-\includegraphics[width=0.25\textwidth]{app/main}
-\end{wrapfigure}
-
 Tuttavia comporre reti di \textit{early detection} molto accurate e molto rapide, con gli stessi sismometri installati per lo studio dei terremoti, è una operazione \textbf{complessa} oltre che \textbf{costosa}: si deve posizionare il sismometro nel terreno (a volte a decine di metri di profondità), si deve mantenere un collegamento stabile e affidabile alla rete di rilevamento oltre che l'energia per far funzionare gli apparati in loco. Ecco perché SeismoCloud affronta il problema con una soluzione \textbf{crowd-sourced}: quasi tutti gli smartphone moderni sono dotati di sensori in grado di rilevare le vibrazioni (oltre che la posizione geografica) in modo relativamente accurato\footnote{Olson, Michael; Liu Annie; Faulkner Matthew; Chandy K. Mani; "Rapid Detection of Rare Geospatial Events: Earthquake Warning Applications" in DEBS '11, pp. 89-100, July 2011, ISBN 978-1-4503-0423-8}: questo permette ad ogni utilizzatore di un cellulare, tramite una app denominata \textbf{SeismoCloud}, di contribuire alla rilevazione dei terremoti. Inoltre, con l'esplosione dell'\textit{IoT}\footnote{\textit{Internet of Things}, letteralmente \textit{internet delle cose} è l'insieme dei piccoli dispositivi, che eseguono un gruppo di funzioni ristrette (ad esempio, accendi/spegni la luce), connessi alla rete Internet} ed il costo contenuto dell'hardware di questa categoria, reti hobbystiche e comunitarie (come ad esempio le Mesh Networks) possono contribuire in modo aperto e libero.
+
+\pagebreak
+%
+%\begin{figure}[ht]
+%\centering
+%\label{fig:scsapp}
+%\caption{Schermata principale dell'applicazione \textbf{SeismoCloud}}
+%\includegraphics[width=0.5\textwidth]{app/main}
+%\end{figure}
+%
+%\pagebreak
 
 \section{Architettura della rete SeismoCloud}
 
-Essendo un sistema in \textit{crowdsourcing}, i dati della rete provengono dagli utenti; sono disponibili applicazioni per smartphones (Android, iOS) e per dispositivi \textit{Internet of Things} (Arduino, NodeMCU, Raspberry PI) in grado di collezionare, con apposito sensore, i dati di accelerazione nei tre assi (X, Y, e Z). La poca precisione di questi sensori (tabella \ref{table:datisensori}), in relazione ai sensori delle reti sismiche ufficiali, non permette di conoscere le componenti importanti per lo studio puntuale e storico dei fenomeni (ad esempio la distanza tra le onde P e le onde S, che richiede una analisi spettrale), tuttavia permette, con una certa affidabilità, di individuare la presenza di eventi sismici in atto se le misure singole dei vari dispositivi sono messe in relazione tra di loro.
+Essendo un sistema in \textit{crowdsourcing}, i dati della rete provengono dagli utenti; sono disponibili applicazioni per smartphones (Android, iOS) e per dispositivi \textit{Internet of Things} (Arduino, NodeMCU, Raspberry PI) in grado di collezionare, con apposito sensore chiamato \textbf{accelerometro}, i dati di accelerazione nei tre assi (X, Y, e Z) del telefono (posizionati come indicato dalla figura \ref{fig:scsaxes}). La poca precisione di questi sensori (vedi tabella \ref{table:datisensori}), in relazione ai sensori delle reti sismiche ufficiali, non permette di conoscere le componenti importanti per lo studio puntuale e storico dei fenomeni (ad esempio la distanza tra le onde P e le onde S), tuttavia permette, con una certa affidabilità, di individuare la presenza di eventi sismici in atto se le misure singole dei vari dispositivi sono messe in relazione tra di loro.
 
 \begin{table}[h]
 \centering
@@ -165,19 +178,12 @@ Sebbene i valori siano così differenti, come si evince dalla tabella \ref{table
 \centering
 \label{fig:scsarch}
 \caption{Architettura della rete SeismoCloud}
-\includegraphics[width=0.5\textwidth]{introduzione/SeismoCloud_arch}
+\includegraphics[width=0.8\textwidth]{introduzione/SeismoCloud_arch}
 \end{figure}
 
 Dal punto di vista utente, contribuire diventa rapido ed economico: una volta installata la \textit{app}, il sistema si avvia, acquisisce la posizione GPS ed entra a far parte della rete. Si è stimato che, per poter coprire un territorio come quello italiano occorrono dai 3000 ai 4000 sismometri, siano essi \textit{app} per cellulari o dispositivi fisici.
 
 \section{Algoritmo di rilevamento}
-
-\begin{wrapfigure}{r}{0.25\textwidth}
-\centering
-\label{fig:scsaxes}
-\caption{Posizionamento assi cartesiani in uno smartphone}
-\includegraphics[width=0.25\textwidth]{introduzione/smartphone_axes}
-\end{wrapfigure}
 
 Il funzionamento del sistema è il seguente: ogni dispositivo (smartphone o dispositivo \textit{IoT}) ha almeno due stati: \textbf{ALIVE} e \textbf{QUAKE}. Un dispositivo nello stato di \textbf{ALIVE} effettua una rilevazione dell'accelerazione su ogni asse ogni $20ms$, e viene calcolata la componente del vettore risultante mediante la formula~\ref{eq:vettoreris}. Il valore viene quindi confrontato con un valore di soglia calcolato (\ref{eq:soglia}) in modo da filtrare il rumore di fondo e, se la rilevazione risulta superiore alla soglia, il dispositivo informa il server comunicando l'attuale accelerazione rilevata, la posizione geografica ed il momento della rilevazione espresso in tempo UNIX\footnote{Il "tempo UNIX" è definito come il numero di secondi dallo \textit{UNIX Epoch Time}, ovvero dal 1 Gennaio 1970} (con precisione di $\pm1ms$), e successivamene passa allo stato di \textbf{QUAKE}.
 
@@ -190,6 +196,13 @@ Threshold = Mean + Variance * \sigma
 \end{equation}
 
 Il rilevamento, con l'algoritmo sopra citato, avviene in background rispetto all'attività utente: in questo modo si consente il multitasking sul dispositivo e si mantiene l'applicazione sempre attiva in modo trasparente per l'utente.
+
+\begin{figure}[ht]
+\centering
+\caption{Posizionamento assi cartesiani in uno smartphone}
+\label{fig:scsaxes}
+\includegraphics[width=0.5\textwidth]{introduzione/smartphone_axes}
+\end{figure}
 
 
 \begin{figure}[ht]
@@ -473,8 +486,6 @@ private synchronized float[] computeOrientation() {
 \end{minted}
 \end{listing}
 
-\paragraph{Il calcolo della rotazione tramite magnetometro} [indicare qui come avviene dentro le API fornite da Android]
-
 \paragraph{Alla ricerca dell'ottimizzazione} Poiché il magnetometro e l'accelerometro forniscono un dato affidabile quanto basta per rilevare la rotazione sul piano orizzontale del telefono, e poiché la frequenza di rilevazione del magnetometro è impostabile (al contrario del giroscopio), si è deciso di procedere con un tentativo di ottimizzazione che includesse due fasi nella fase \textbf{ALIVE} (fase di rilevamento dei valori dell'accelerometro): sono state introdotte le fasi \textbf{ALIVE\_SLOW} e \textbf{ALIVE\_FAST}. Ogni fase registrava sensori differenti con frequenze differenti:
 
 \begin{itemize}
@@ -488,7 +499,7 @@ Inizialmente veniva attivata la fase \textbf{ALIVE\_SLOW}. Successivamente, ad u
 \centering
 \caption{Diagramma degli stati per \textbf{ALIVE\_FAST} e \textbf{ALIVE\_SLOW}}
 \label{fig:scs_sm4}
-\digraph[width=0.7\textwidth]{StateMachine4}{
+\digraph[width=\textwidth]{StateMachine4}{
 rankdir=LR;
 Start [style=invis];
 Start->Alive_Slow [label="Service started"];
@@ -542,9 +553,9 @@ Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente ele
 
 Dove:
 \begin{itemize}
-\item $\gamma \in Z^+$ rappresenta il \textit{rate} di perdita della capacità della batteria per minuto nella fascia 8-20
-\item $\lambda \in N^+$ rappresenta il numero di minuti a partire dalla mezzanotte del giorno
-\item $Threshold \in Z^+$, $0 <= Threshold <= 100$ è il valore attuale di capacità della batteria (espresso in percentuale) previsto per l'orario attuale
+\item $\gamma \in Z^+$: \textit{rate} di perdita della capacità della batteria per minuto nella fascia 8-20
+\item $\lambda \in N^+$: numero di minuti a partire dalla mezzanotte del giorno
+\item $Threshold \in Z^+$ : la capacità della batteria (in percentuale) prevista per l'orario attuale
 \end{itemize}
 
 \begin{figure}[ht]
@@ -554,7 +565,7 @@ Dove:
 \label{fig:expectedchart}
 \end{figure}
 
-Dopo averla applicata sui dispositivi di test, abbiamo subito notato un enorme cambiamento: nonostante un tempo di attività leggermente inferiore a causa dei distacchi per rispettare la soglia (cosa che, ovviamente, varia da telefono a telefono a seconda della capacità della batteria, delle applicazioni installate, dell'hardware del telefono e dell'utilizzo), il consumo evidenziato dai dati sul \textit{database} è nettamente migliore, come mostrato nella figura \ref{fig:batterychart}.
+Dopo averla applicata sui dispositivi di test, abbiamo subito notato un cambiamento notevole: nonostante un tempo di attività leggermente inferiore a causa dei distacchi per rispettare la soglia (cosa che, ovviamente, varia da telefono a telefono a seconda della capacità della batteria, delle applicazioni installate, dell'hardware del telefono e dell'utilizzo), il consumo evidenziato dai dati sul \textit{database} è nettamente migliore, come mostrato nella figura \ref{fig:batterychart}.
 
 \begin{figure}[h]
 \centering
@@ -563,6 +574,7 @@ Dopo averla applicata sui dispositivi di test, abbiamo subito notato un enorme c
 \label{fig:batterychart}
 \end{figure}
 
+\clearpage
 
 \begin{listing}[H]
 \caption{Porzione di codice che calcola la curva di scarica e indica se procedere o no con il servizio}
