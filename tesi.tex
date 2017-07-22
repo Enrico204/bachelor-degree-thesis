@@ -624,9 +624,118 @@ public static boolean shouldProceedWithService(Context ctx) {
 
 \chapter{Ottimizzazione della rete}
 
-\section{MQTT}
+Nell'ambiente \textit{mobile} un problema fondamentale con cui gli sviluppatori di \textit{app} si devono confrontare è l'affidabilità e le caratteristiche della connessione alla rete Internet. Su un dispositivo Android, sia esso smartphone o tablet, la connessione può arrivare tramite una rete Wi-Fi (IEEE 802.11a/b/g/n), oppure tramite rete cellulare attraverso reti che vanno dalla seconda generazione (EDGE) alla quarta generazione (LTE). La differenza notevole di caratteristiche tra le tecnologie, unita alla copertura non omogenea delle varie reti, obbliga gli sviluppatori a prendere delle decisioni implementative che siano in grado di sopportare e/o recuperare dalle mancanze temporanee dovute al \textit{roaming} sia tra reti mobile, es. tra HDSPA e LTE, sia con il Wi-Fi.
 
-Si spiega come l'introduzione dell'MQTT abbia ridotto il carico sulla rete per lo scambio dati con il server.
+\section{Message Queue Telemetry Transport}
+
+\paragraph{Obiettivo} Lo studio di questa sezione si è concentrato sul come ridurre al minimo i problemi legati alla perdita di dati durante il roaming, in particolare per i dati del servizio di rilevamento. Lo status attuale, al momento dell'analisi, prevedeva l'utilizzo di chiamate HTTP (ovvero che sfruttavano l'\textit{HyperText Transfer Protocol}\footnote{L'HyperText Transfer Protocol è lo standard per la navigazione web: i browser (Mozilla Firefox, Google Chrome) sono esempi di "client HTTP"}) verso il server SeismoCloud per le API del servizio in background, con il passaggio dei dati (da e verso il telefono) in queste richieste.
+
+\begin{listing}[H]
+\caption{Richiesta HTTP classica per la API "alive.php"}
+\label{listing:httpreq}
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{http}
+POST /seismocloud/alive.php HTTP/1.1
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:54.0) Gecko/20100101 Firefox/54.0
+Host: www.sapienzaapps.it
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 57
+Accept-Language: it-it
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+
+deviceid=0123456789&lat=0&lon=0&model=android&version=2.2
+\end{minted}
+\end{listing}
+
+\begin{listing}[h]
+\caption{Risposta classica HTTP alla chiamata "alive.php"}
+\label{listing:httpresp}
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{http}
+HTTP/1.1 200 OK
+Date: Sat, 22 Jul 2017 22:38:34 CEST
+Content-Type: text/html; charset=UTF-8
+Content-Encoding: UTF-8
+Content-Length: 79
+Last-Modified: Sat, 22 Jul 2017 22:38:34 CEST
+Server: Apache/1.3.3.7 (Unix)
+ETag: "3f80f-1b6-3e1cb03b"
+Accept-Ranges: bytes
+Connection: close
+
+{"sigma":2,"trace":0,"server":"www.sapienzaapps.it","ntpserver":"pool.ntp.org"}
+\end{minted}
+\end{listing}
+
+Come è ben visibile da una richiesta HTTP di una delle \textit{Application Program Interface} di comunicazione smartphone-server (listato \ref{listing:httpreq}) e dalla relativa risposta (listato \ref{listing:httpresp}), molte di queste informazioni sono ridondanti ed inutili: la struttura \textit{human-readable} di HTTP è ovviamente un vantaggio in fase di scrittura delle implementazioni, o in fase di debug dei software, \textbf{ma sicuramente non è ottima per il trasferimento ottimizzato dei dati}. Inoltre, la natura \textit{richiesta/risposta}, con la creazione di una nuova connessione ad ogni nuova richiesta, non favorisce l'utilizzo in ambienti dove il tempo è una componente essenziale e dove le informazioni potrebbero transitare solo in un verso (ad esempio, una segnalazione di onda sismica dallo smartphone) ma non necessariamente sempre nello stesso (ad esempio, il server deve poter segnalare l'evento sismico allo smartphone).
+
+\pagebreak 
+
+E' stata realizzata, quindi, una ricerca basata sui seguenti parametri:
+\begin{itemize}
+\item \textbf{alta affidabilità}: il dato deve arrivare a destinazione una volta che ho ricevuto la conferma di invio
+\item \textbf{bassa latenza}: l'apertura della connessione ed il transito dati devono impiegare il minor tempo possibile
+\item \textbf{basso overhead}: la quantità di dati, esterna a quelli necessari dal sistema SeismoCloud, deve essere il minore possibile
+\end{itemize}
+
+Come risultato è stato scelto il protocollo \textbf{MQTT} (Message Queue Telemetry Transport).
+
+\begin{table}[h]
+\centering
+\caption{Principali differenze tra HTTP e MQTT}
+\label{table:mqttdiff}
+\begin{tabular}{lll}
+                    & \textbf{HTTP} & \textbf{MQTT} \\
+\textbf{Overhead} & da $\sim$200 a 2048 bytes & 5-7 bytes \\
+\textbf{Connessione} & aperta una volta soltanto & aperta ad ogni richiesta \\
+\textbf{Codifica header} & RFC 2822 & \textit{Type-Length-Value} \\
+\textbf{Schema di funzionamento} & \textit{request/response} & \textit{publisher/subscriber} \\
+\textbf{QoS} & - & 3 Livelli \\
+\textbf{Dimensione libreria} & Apache HTTP Client: 3 MB & Eclipse Paho: 14.6 KB \\
+\end{tabular}
+\end{table}
+
+\paragraph{Message Queue Telemetry Transport} Il protocollo \textbf{MQTT} è un protocollo ISO standard "leggero", aderente allo schema \textit{publish/subscribe}, pensato per i dispositivi \textit{IoT} e quindi con consumi di risorse ridotti. Lo schema \textit{publish/suscribe} permette ad un \textit{client} connesso alla rete MQTT di effettuare due operazioni: \textbf{publish}, ovvero l'invio di un messaggio dati, oppure il \textbf{subscribe}, ovvero la sottoscrizione per la ricezione dei messaggi. Ogni messaggio è caratterizzato da un \textit{topic}, ovvero un "argomento", nel nostro caso il nome della \textit{Application Program Interface} di riferimento.
+
+Come si evince dalla tabella \ref{table:mqttdiff}, ci sono diversi vantaggi nell'uso di MQTT:
+
+\begin{itemize}
+\item L'overhead si riduce di due ordini di grandezza (riducendo, nel contempo, il tempo impiegato per trasmettere i dati)
+\item L'apertura della connessione ad inizio dell'attività (e non ogni volta) permette di avere tempi di latenza di trasmissione ridotti allo stretto necessario per l'invio dell'informazione stessa: l'HTTP, al contrario, per rispettare il \textit{three-way handshake} del protocollo TCP ad ogni trasmissione, aggiunge 3 volte il tempo di latenza e trasmissione del pacchetto, in più altre 4 volte per la chiusura della connessione a fine trasmissione
+\item La codifica TLV permette di "comprimere" le informazioni del protocollo, rispetto alla codifica stile RFC 2822, la quale richiede che il nome del campo ed il valore siano specificati come stringa\footnote{Un sistema TLV prevede che ci siano campi binari a dimensione prevalentemente fissa, contenenti i valori dei vari campi da inviare come header. Spesso, come in TCP/UDP/IP, non richiede la presenza di una "chiave" per il valore, poiché il valore si troverà sempre nella posizione indicata (e sarà sempre presente)}
+\item Le attività del servizio in background poco si adattano in uno schema tipo "richiesta/risposta" come quello di HTTP, mentre aderiscono di più ad un sistema di segnalazione come quello adottato da MQTT
+\item Il \textbf{Quality of Service} (QoS) è implementato solo in MQTT: è possibile, tramite questo protocollo, inviare dati con diversi livelli di "priorità/affidabilità".
+\item Le dimensioni delle implementazioni principali, come rappresentato nella tabella \ref{table:mqttdiff}, forniscono un ulteriore motivo per scegliere MQTT rispetto ad HTTP.
+\end{itemize}
+
+\begin{figure}[ht]
+\centering
+\caption{Formato di un pacchetto dati MQTT}
+\label{fig:mqttpacket}
+\includegraphics[width=\textwidth]{app/MQTT}
+\end{figure}
+
+\paragraph{Conclusioni} Sebbene l'implementazione MQTT non sia ancora stata rilasciata, i test evidenziati nella tabella \ref{fig:networkperformance} evidenziano il risparmio di risorse, sia in termini di consumo batteria, sia in termini di messaggi/ora gestibili (il quale è diretta conseguenza della bassa latenza).
+
+\pagebreak
+
+\begin{figure}[ht]
+\centering
+\caption{Confronto utilizzo risorse per i due protocolli HTTP e MQTT}
+\label{fig:networkperformance}
+\includegraphics[scale=0.8]{database/networkperformance}
+\end{figure}
+
+\pagebreak
 
 \section{Pushback}
 
