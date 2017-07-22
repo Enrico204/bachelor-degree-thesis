@@ -60,7 +60,6 @@
 
 
 \begin{wrapfigure}{r}{0.30\textwidth}
-\label{fig:litosfera}
 \includegraphics[width=0.30\textwidth]{introduzione/oceanic_spreading}
 \end{wrapfigure}
 
@@ -689,6 +688,8 @@ E' stata realizzata, quindi, una ricerca basata sui seguenti parametri:
 
 Come risultato è stato scelto il protocollo \textbf{MQTT} (Message Queue Telemetry Transport).
 
+% http://stephendnicholas.com/posts/power-profiling-mqtt-vs-https
+
 \begin{table}[h]
 \centering
 \caption{Principali differenze tra HTTP e MQTT}
@@ -739,7 +740,80 @@ Come si evince dalla tabella \ref{table:mqttdiff}, ci sono diversi vantaggi nell
 
 \section{Pushback}
 
-Parlare del meccanismo di Pushback per l'invio dei dati (ad esempio survey) in background in modo ottimizzato in caso di problemi di rete (invio asincrono).
+\begin{wrapfigure}{r}{0.30\textwidth}
+\includegraphics[width=0.30\textwidth]{app/hsit}
+\end{wrapfigure}
+
+Una sezione non critica della applicazione, ma molto importante dal punto di vista dell'analisi degli utenti e delle risposte al terremoto, è la parte denominata "\textit{Hai sentito il terremoto?}". Questa sezione della App fa parte dell'omonimo progetto dell'\textit{Istituto Nazionale di Geofisica e Vulcanologia}, che mira ad identificare e classificare la risposta emotiva e culturale degli utenti mediante un questionario sugli effetti del terremoto sul proprio stato d'animo e sugli oggetti intorno a se. Un classico esempio di utilizzo di questi dati è l'\textbf{analisi della differenza tra l'intensità/magnitudo del terremoto e la percezione di esso} che ha la popolazione residente: questo è dato come indice della cultura e della prevenzione contro i sismi.
+
+\paragraph{La sezione del questionario} Il questionario, realizzato all'interno della applicazione, si compone di diverse domande a scelta singola o multipla, prima delle quali l'utente è invitato ad indicare la sua posizione nel momento in cui ha avvertito il terremoto. Alla fine della compilazione le risposte al questionario vengono inserite in un unico file JSON che viene inviato al server e condiviso con INGV (per generare la mappa \ref{fig:hsitmap}). Poiché lo sviluppo della sezione del questionario è avvenuta parallelamente alle ottimizzazioni, è stato possibile, fin dal principio, studiare un sistema efficace di invio affidabile e asincrono, in modo da garantire la consegna del questionario anche in condizioni di scarsa connettività, e soprattutto \textbf{in modo asincrono rispetto all'attività utente} (in altre parole l'utente, terminato il questionario, non deve attendere che l'invio sia completato con successo: sarà una attività eseguita in background). Questo ultimo punto è importante dal punto di vista della \textit{Human Interaction} poiché non c'è nessun motivo per far attendere l'utente per una operazione che non richiede il suo intervento.
+
+\begin{figure}[ht]
+\centering
+\label{fig:survey1}
+\includegraphics[width=0.6\textwidth]{app/survey2}
+\caption{Schermata della applicazione di una delle domande del questionario}
+\end{figure}
+
+\paragraph{Il meccanismo di pushback} Per l'invio in background dei risultati del sondaggio, quindi, è stato ideato e realizzato un meccanismo, denominato \textit{di pushback}, che funziona in questo modo: è presente una coda di file\footnote{il meccanismo è stato ideato e sviluppato in modo generico, così ché in futuro si possa riutilizzare per altre tipologie di dati da sottomettere al server in asincrono ed in background} da inviare al server, ed un servizio in background di invio che viene svegliato per l'invio e/o ad intervalli non regolari. Il servizio, al risveglio, scorre la lista degli oggetti da inviare e tenta l'invio. Se fallisce (per problemi di rete o di altra natura), l'oggetto viene riaccodato per il prossimo ciclo.
+
+\begin{figure}[ht]
+\centering
+\caption{Diagramma degli stati per il servizio di pushback}
+\label{fig:scs_pb1}
+\digraph[width=\textwidth]{PushBack1}{
+rankdir=LR;
+Start->DeQueueNext;
+DeQueueNext->SendItem [label="ready"];
+SendItem->DeQueueNext [label="sent"];
+SendItem->QueueItem [label="failed"];
+QueueItem->DeQueueNext;
+DeQueueNext->End [label="end: empty"];
+DeQueueNext->SetBackOff [label="end: not-empty"];
+SetBackOff->End;
+}
+\end{figure}
+
+E' importante notare che il servizio utilizza una particolare API di Android denominata \texttt{AlarmManager.setInexactRepeating}: l'obiettivo di questa API è di fornire uno strumento, agli sviluppatori, per poter schedulare delle operazioni ad intervalli \textit{non precisi}. \textbf{La non-precisione di questo metodo è il meccanismo chiave per il risparmio di risorse}: poiché non è necessario che l'operazione di pushback sia eseguita esattamente in un certo momento, è molto più corretto attendere un tempo variabile ed essere svegliati quando gli algoritmi di \textit{resources management} di Android decidono che è arrivato il momento opportuno. Nel listato \ref{listing:pushback} è possibile notare questa cosa.
+
+Il servizio rimuove dalla coda, dopo 24 ore, gli elementi per cui l'invio è fallito, notificando eventualmente gli sviluppatori tramite un \textit{log collector} chiamato ACRA.
+
+\begin{listing}[h]
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{java}
+serviceSingletonSemaphore.acquire();
+PushbackDB db = new PushbackDB(this);
+if (db.queueSize() > 0) {
+	Intent receiverIntent = new Intent(this, WakeUpAlarmReceiver.class);
+	backoffReceiverPendingIntent = PendingIntent.getBroadcast(
+		this, 0, receiverIntent, 0);
+	Calendar calendar = Calendar.getInstance();
+	calendar.add(Calendar.MINUTE, 15);
+	AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+	am.setInexactRepeating(
+			AlarmManager.RTC_WAKEUP,
+			calendar.getTimeInMillis(),
+			AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+			backoffReceiverPendingIntent
+	);
+}
+serviceSingleton = false;
+serviceSingletonSemaphore.release();
+\end{minted}
+\caption{Sezione di chiusura del servizio di pushback, dove viene impostato l'eventuale nuovo ciclo per gli elementi da inviare (se la coda li contiene)}
+\label{listing:pushback}
+\end{listing}
+
+\begin{figure}[ht]
+\centering
+\caption{Grafico dei report inviati dagli utenti che collaborano al progetto per il terremoto di Rieti del 24 agosto 2016 (ore 03:36)}
+\label{fig:hsitmap}
+\includegraphics[width=\textwidth]{app/hsit_email}
+\end{figure}
 
 \chapter{Ottimizzazione dell'uso di memoria e CPU nel codice}
 
