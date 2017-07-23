@@ -43,6 +43,14 @@
 %\cleardoublepage
 
 % rest of the document
+\LARGE \textsl{Ringraziamenti}
+
+\normalsize
+[...]
+
+\cleardoublepage
+
+% rest of the document
 \begin{abstract}
 	\thispagestyle{plain}
 	Sommario della tesi.
@@ -1093,7 +1101,45 @@ Grazie ad ACRAFlask il \textit{team} di sviluppo è in grado di identificare per
 
 \section{Continuous Integration}
 
-Qui parliamo di Jenkis (build), instrumentation test sul servizio, analisi statica con SonarQube e dinamica del codice con gli strumenti di Android
+Poiché l'ottimizzazione non è un prodotto ma un processo, si è deciso di creare una \textit{pipeline}, ovvero una serie di processi, per iniziare con un processo di \textit{continuous integration}. La \textit{pipeline} di \textit{continuous integration} che abbiamo scelto di implementare prevede alcuni step: la creazione di un \textit{repository centrale} di codice gestito tramite un sistema di controllo versione (VCS); la generazione di build automatiche; l'analisi statica del codice e l'implementazione di test strumentali.
+
+\begin{figure}[ht]
+\centering
+\caption{I passi del nostro sistema di Continuous Integration}
+\digraph[width=\textwidth]{CIStateMachine}{
+rankdir=LR;
+{
+Build->Analyze [label="Build ok"];
+Build->Report [label="Build error"];
+Analyze->Test [label="Quality Gate ok"];
+Analyze->Report [label="Quality Gate error"];
+Test->Done [label="Test ok"];
+Test->Report [label="Test error"];
+Report->Done;
+}
+{
+rankdir=TB;
+rank=min;
+Get->Build;
+}
+}
+\end{figure}
+
+Il sistema di Continuous Integration che abbiamo installato si compone di un "direttore d'orchestra" chiamato \textbf{Jenkins}, il quale si occupa di eseguire, in automatico ad un orario prestabilito, i passi di:
+\begin{itemize}
+\item Recupero dell'ultima versione del codice sorgente dal VCS tramite \texttt{git}
+\item Compilazione, mediante l'\textbf{Android SDK}, del codice: questo assicura che il codice presente sia effettivamente compilabile e che ci siano tutti i file
+\item Analisi del codice statica: tramite uno strumento chiamato \textbf{SonarQube} (ed altri tool a supporto) viene effettuata l'analisi statica del codice sorgente Java/Android: vengono effettuati diversi controlli per l'individuazione di bug e di errori di leaks nel codice, inoltre vengono applicate delle regole stringenti sul \textit{code-styling}, in modo da minimizzare la presenza di errori
+\item Test strumentali: viene simulata l'interazione con l'utente (mediante finte pressioni e inserimenti di testo) nel simulatore di Android, allo scopo di far uscire bug e leaks
+\end{itemize}
+
+Quando un passo fallisce, vengono notificati gli sviluppatori. Inoltre si mantiene lo storico di queste analisi per poter effettuare dei miglioramenti futuri al processo di sviluppo.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth]{dev/ci}
+\caption{Visione d'insieme del sistema di \textit{continuous integration}}
+\end{figure}
 
 \clearpage
 
@@ -1120,7 +1166,7 @@ Un minore, ma comunque importante contributo lo ha dato l'\textbf{ottimizzazione
 
 \medskip
 
-Infine, sono state introdotte nuove librerie in grado di generare in modo ottimale il codice ridondante, ed è stato introdotto un sistema di \textit{pipeline} per monitorare costantemente l'uso delle risorse all'interno delle build nel processo di sviluppo.
+Infine, sono state introdotte nuove librerie in grado di generare in modo ottimale il codice ridondante (sezione~\ref{section:aa}), ed è stato introdotto un sistema di \textit{pipeline} per monitorare costantemente l'uso delle risorse all'interno delle build nel processo di sviluppo (sezione~\ref{section:ci}).
 
 \vspace*{1cm}
 
@@ -1130,11 +1176,23 @@ Infine, sono state introdotte nuove librerie in grado di generare in modo ottima
 
 \section{Sviluppi futuri}
 
-\begin{itemize}
-\item Utilizzo di un sistema di spegnimento controllato dal server per l'ottimizzazione geografica
-\item Utilizzo di sensori dedicati (es. Samsung Significant Motion Sensor) per il wake-up
-\item Riscrittura parti critiche in codice nativo per l'esecuzione ottimizzata e rapida (con conseguente aumento del periodo di idle del telefono)
-\item Implementazione delle tecniche descritte in \textit{"Energy-Accuracy Trade-off for Continuous Mobile Device Location"; Kaisen Lin, Aman Kansal, Dimitrios Lymberopoulos, Feng Zhao; MobiSys '10 Proceedings of the 8th international conference on Mobile systems, applications, and services; ISBN: 978-1-60558-985-5}
-\end{itemize}
+Durante lo sviluppo di questa tesi (e delle soluzioni esposte) sono emersi diversi punti che possono portare ad ottimizzazioni ulteriori nel funzionamento della applicazione.
+
+\subsection{Sistema di spegnimento controllato}
+
+Un ulteriore passo, esplorato in fase di progettazione ma mai realizzato né testato, è lo spegnimento controllato dal server in base alla quantità di sismometri presenti in una determinata zona: poiché l'algoritmo si basa sulla quantità di sismometri per l'affidabilità, quando il numero di dispositivi è elevato e si è raggiunto un livello accettabile di affidabilità non è più necessario che altri (diversi) dispositivi, in una certa zona, siano attivi: \textbf{il server potrà quindi decidere di spegnere a turno i servizi di rilevamento per conservare la batteria}.
+
+\subsection{Studio sull'utilizzo di sensori dedicati}
+
+Alcuni telefoni hanno a bordo diverse tipologie di sensori (virtuali e non) in grado di fornire le stesse (o maggiori) informazioni che attualmente vengono lette per ottenere lo stesso scopo. L'utilizzo di questi sensori potrebbe portare un notevole risparmio energetico. Un esempio è il sensore (attualmente trovato solo sui dispositivi Samsung) chiamato "Significant Motion Sensor": qualora questo sensore abbia la capacità di individuare movimenti significativi per le caratteristiche richieste dalla app \textbf{SeismoCloud}, potrebbe essere implementato un sistema di stand-by del servizio con consumi molto più ridotti rispetto a quelli attuali.
+
+\subsection{Scrittura del codice nativo (C/C++) per le componenti critiche}
+
+Nonostante la \textit{virtual machine} Android sia notevolmente migliorata nel tempo, per alcune particolari funzioni può essere interessante esplorare la scrittura del codice nativo in \texttt{C/C++}, in particolare della parte di rilevazione delle scosse sismiche. Tale componente, poiché compilata in codice nativo, potrebbe risultare più veloce e più performante (e quindi, più \textit{green} dal punto di vista dei consumi).
+
+\subsection{Esplorare ed implementare altre tecniche}
+
+Durante la scrittura di questa tesi ed i test finali è stata individuata una pubblicazione del 2010 che riporta interessanti tecniche di ottimizzazione (diverse da quelle implementate in questa tesi) per il monitoraggio continuo della posizione geografica di un dispositivo \textit{mobile}. Se compatibili con la App e con le implementazioni già in essere, è interessante capire se e quanto riescono ad ottimizzare il risparmio energetico. La pubblicazione è \textit{"Energy-Accuracy Trade-off for Continuous Mobile Device Location"; Kaisen Lin, Aman Kansal, Dimitrios Lymberopoulos, Feng Zhao; MobiSys '10 Proceedings of the 8th international conference on Mobile systems, applications, and services; ISBN: 978-1-60558-985-5}
+
 
 \end{document}
