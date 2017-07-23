@@ -215,6 +215,15 @@ Il rilevamento, con l'algoritmo sopra citato, avviene in background rispetto all
 \begin{figure}[ht]
 
 \begin{adjustbox}{addcode={\begin{minipage}{\width}}{
+	\caption{Simulazione del terremoto dell'Aquila del 2009 - in rosso i sismometri simulati che hanno avvertito il terremoto, in viola le province avvertite (il punto è sul capoluogo ma rappresenta l'intera provincia) - Nella simulazione animata "l'onda" rappresentata dai Pin rossi è appena visibile quando le province (immediatamente) vengono avvertite dell'arrivo del terremoto}\label{fig:scssim}\end{minipage}},rotate=90,center}
+      \includegraphics[width=1.2\textwidth]{introduzione/simulazione}
+  \end{adjustbox}
+\end{figure}
+
+
+\begin{figure}[ht]
+
+\begin{adjustbox}{addcode={\begin{minipage}{\width}}{
 	\caption{Grafico dei dati estratti da un sensore SeismoCloud. La linea rossa rappresenta la soglia del dispositivo, le linee verdi, blu e azzurra rappresentano le eventuali soglie alternative calcolate con un valore moltiplicativo del server differente}\label{fig:scstrace}\end{minipage}},rotate=90,center}
       \includegraphics[width=1.2\textwidth]{database/984fee0055c9}
   \end{adjustbox}
@@ -951,15 +960,140 @@ L'occupazione di memoria, grazie all'utilizzo di questo algoritmo, è costante n
 
 \chapter{Ottimizzazione in fase di sviluppo}
 
-Si spiega l'adozione di particolari meccanismi per la gestione ottimizzata del processo di sviluppo allo scopo di ridurre gli errori del processo in background:
+Una buona ottimizzazione è sicuramente salutare per un software, ma non dobbiamo dimenticarci che \textit{l'ottimizzazione non è un prodotto, ma un processo}. Dobbiamo quindi assicurarci che il nostro lavoro non vada perduto nel quotidiano, cercando metodi che ci aiutano ad applicare correttamente le \textit{best practices} e allo stesso tempo notificarci dei problemi, possibilmente nel modo più rapido e automatico possibile (così da concentrarci sui veri problemi).
 
-\begin{itemize}
-\item Utilizzo della libreria ACRA per l'immediata segnalazione di errori della app (da produzione)
-\item Utilizzo della libreria LeakCanary per la ricerca di memory leak
-\item Utilizzo delle librerie Parceler e Android Annotations per ridurre la quantità di codice ridondante
-\item Continuos integration per la verifica dei build ed instrumentation test
-\item Verifica del codice tramite SonarQube per aderenza agli standard Java/Android e risultati di analisi statica del codice
-\end{itemize}
+\section{Android Annotations}
+
+\begin{flushright}
+``\textit{If debugging is the process of removing software bugs, then programming must be the process of putting them in.}" \\ Edsger Dijkstra
+\end{flushright}
+
+L'apertura di finestre, il controllo di alcuni valori, la gestione dei processi in background richiedono molto codice, spesso usato a ripetizione con poche variazioni. A volte, come è capitato in questa applicazione, alcuni processi non sono ottimali. \textbf{Una regola d'oro quindi è: meno codice c'è, meno codice è da mantenere e ottimizzare}. Vediamo come possiamo ottimizzare la nostra app scrivendo meno codice.
+
+
+\begin{wrapfigure}{r}{0.10\textwidth}
+\includegraphics[width=0.10\textwidth]{dev/aa}
+\end{wrapfigure}
+
+\paragraph{Android Annotations} Una libreria di terze parti che realizza una vera e propria rivoluzione nell'eliminazione del codice ridondante si chiama \textbf{Android Annotations}. Inizialmente, come suggerisce il nome, era una collezione di annotazioni di Java utili per Android, ma si è evoluta fino ad inglobare ed automatizzare numerosi e macchinosi "\textit{task}" che gli sviluppatori si trovano a fare.
+
+\medskip
+
+Le \textbf{annotazioni} in Java sono un tipo di \textit{metadato} che può essere aggiunto ad ogni attributo, classe, metodo o attributo di un metodo. Questo metadato è trasportato nel \textit{bytecode} Java, in modo da essere accessibile tramite \textit{reflection}\footnote{\textit{Reflection} è un modo di accesso agli attributi e metodi di una classe in modo dinamico, ovvero senza che si conosca a tempo di compilazione la struttura. E' utilizzata per costruire dei sistemi di caricamento dinamico delle librerie, ad esempio.}. Può essere utile sia in fase di compilazione o analisi statica (ad esempio, se aggiungo l'annotazione \texttt{@NonNull} un sistema di verifica può analizzare staticamente il codice e controllare se ci sono casi in cui ritorna \texttt{NULL}, ed in quel caso emettere un errore), oppure è utile in \textit{runtime} (ad esempio, si può scorrere tramite reflection gli attributi di una classe e lavorare solo su quelli annotati, senza sapere staticamente quali sono in fase di compilazione).
+
+\medskip
+
+In Android, ad esempio, quando è necessario leggere le informazioni passate dalla \textit{activity} chiamante, in genere il codice da scrivere è:
+
+\begin{listing}[H]
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{java}
+               
+public class SurveyActivity extends AppCompatActivity {
+	private String param1;
+	private String param2;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_survey);
+		
+		Intent in = getIntent();
+		if (in == null) {
+			// Gestione dell'errore
+			this.finish();
+		}
+		param1 = in.getStringExtra("param1");
+		param2 = in.getStringExtra("param2");
+	}
+	// Altro codice della activity
+}
+\end{minted}
+\end{listing}
+
+Mentre lo stesso effetto si ottiene con:
+
+\begin{listing}[H]
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{java}
+@EActivity(R.layout.activity_survey)
+public class SurveyActivity extends AppCompatActivity {
+	@Extra String param1;
+	@Extra String param2;
+	// Altro codice della activity
+}
+\end{minted}
+\end{listing}
+
+Chiaramente usare \textbf{Android Annotations} ha molti vantaggi. Si è stimato che il codice diminuisce in media di circa il 30\%. Inoltre, alcuni passaggi sono molto più intuitivi (ad esempio, la presenza della annotazione \texttt{@Extra} di fianco alla dichiarazione di \texttt{param1} nel codice indica subito che si tratta di un parametro proveniente dall'esterno della \textit{activity}). L'adozione di questa libreria è stata fatta in modo graduale, poiché non è necessario utilizzarla in modo esclusivo rispetto alle tecniche standard di Android.
+
+\clearpage
+
+\section{LeakCanary}
+
+\begin{flushright}
+``\textit{A small leak will sink a great ship.}" \\ Benjamin Franklin
+\end{flushright}
+
+\medskip
+
+Un \textbf{memory leak} è una condizione nella quale un software non rilascia un'area di memoria (che sia essa una variabile, un array, etc) ma perde la possibilità di utilizzarla (per effettiva perdita del \textit{puntatore}, ad esempio) e/o dimentica di liberarla. Sebbene nell'immediato non sia un grosso problema (a meno di grandi allocazioni), per qualcosa che rimane in esecuzione per molto tempo (nel nostro caso ad esempio, il servizio di rilevamento di scosse) rappresenta un grave problema, specialmente se tale \textit{leak} avviene dentro codice che viene iterato spesso (poiché l'effetto si somma).
+
+\paragraph{LeakCanary} Una libreria di terze parti, chiamata \textbf{LeakCanary}\footnote{\textit{Canary} è la parola inglese per specificare "canarino"; l'utilizzo di questo animale come esempio è frequente nell'informatica, specialmente nella sicurezza. E' preso in prestito dalla storia dei minatori di carbone, i quali portavano un canarino nelle grotte: se il canarino, più sensibile alla mancanza di ossigeno, moriva, esso era il segnale di allarme per abbandonare il posto prima di morire asfissiati} si preoccupa di controllare, durante la fase di test nello sviluppo ed in modo del tutto trasparente dal punto di vista del codice, ogni allocazione e deallocazione in memoria effettuata dalla nostra applicazione o dalle librerie utilizzate. Qualora si venga a creare un \textit{memory leak}, l'applicazione \textbf{raccoglie i dati sulle cause e le segnala allo sviluppatore immediatamente}. Questo permette di correggere la maggior parte dei \textit{memory leaks}.
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.8\textwidth]{dev/leakcanary}
+\caption{Lo stacktrace di una chiamata di esempio (che finisce con un \textit{leak}), mostrata da LeakCanary sullo smartphone di sviluppo}
+\end{figure}
+
+\clearpage
+
+\section{Application Crash Reports for Android}
+
+\begin{flushright}
+``\textit{It's not a bug – it's an undocumented feature.}" \\ Anonymous
+\end{flushright}
+
+Ogni software sviluppato non è esente da errori di programmazione. Per quanto un software possa essere controllato, ricontrollato, sottoposto a stress e verifiche di funzionamento, ci sarà sempre la possibilità che un errore si annidi all'interno della più complessa componente del sistema. E ovviamente spesso questo \textit{bug}\footnote{Si utilizza la parola inglese \textit{bug} per indicare gli errori di sistema, in genere di programmazione, da quando in un lontano passato un insetto (da qui la parola \textit{bug}), entrando dentro gli ingranaggi di una delle prime macchine per il calcolo automatico, bloccò il suo funzionamento fino alla completa ispezione.} si presenta nell'ambiente di "produzione", ovvero nel telefono dell'utente. E' quindi utile tener traccia di questi problemi, perché non sempre questi causano il blocco completo dell'applicazione: potrebbero comportare utilizzi eccessivi della rete o in generale delle risorse a bordo del telefono.
+
+\begin{wrapfigure}{r}{0.10\textwidth}
+\includegraphics[width=0.10\textwidth]{dev/ACRA}
+\end{wrapfigure}
+
+\paragraph{ACRA} Un componente che è stato aggiunto alla nostra applicazione si chiama \textbf{Application Crash Reports for Android} (ACRA). Lo scopo di questo componente è quello di individuare i problemi (i \textit{crash} dell'applicazione), oppure di raccogliere le segnalazioni fatte in modo volontario, nel codice sorgente, da parte del programmatore, ed inviarle ad un sistema centrale per l'analisi e la gestione. Le informazioni inviate contengono i dettagli del problema, oltre che ai dettagli della piattaforma su cui l'applicazione sta girando (in modo che gli sviluppatori possano riprodurre l'ambiente, e, si spera, riprodurre il \textit{bug}).
+
+ACRA si compone di un backend, chiamato \textit{ACRAlyzer}, il quale funge da collettore per i report inviati dalla componente ACRA che gira nel telefono Android. Tuttavia abbiamo dovuto abbandonare tale backend per problemi di performance: esso faceva pesante uso di CouchDB, il quale, per il nostro tipo di interrogazione, era notevolmente inefficiente. Ho quindi dovuto scrivere un middleware in Python, il quale adesso è un progetto \textit{open-source} su GitHub\footnote{https://github.com/Enrico204/acraflask} chiamato \textbf{ACRAFlask}, per poter gestire i dati in ingresso, utilizzando un database NoSQL chiamato \textbf{OrientDB}, il quale permette una buona versatilità e riesce a gestire correttamente il carico di lavoro della app \textbf{SeismoCloud}.
+
+Grazie ad ACRAFlask il \textit{team} di sviluppo è in grado di identificare per tempo non solo i \textit{crash} applicativi, ma di mettere in relazione tali \textit{crash} e le \textit{performance} dell'applicazione con le caratteristiche fisiche del telefono.
+
+\begin{figure}[ht]
+\centering
+\caption{Flusso di informazioni per i log dei crash}
+\includegraphics[width=0.6\textwidth]{dev/acracollector}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\caption{ACRAFlask, il progetto \textit{collector} per i report di ACRA}
+\label{fig:acraflask}
+\includegraphics[width=\textwidth]{dev/acraflask}
+\end{figure}
+
+\clearpage
+
+\section{Continuous Integration}
+
+Qui parliamo di Jenkis (build), instrumentation test sul servizio, analisi statica con SonarQube e dinamica del codice con gli strumenti di Android
 
 \clearpage
 
