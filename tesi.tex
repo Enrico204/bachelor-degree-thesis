@@ -33,6 +33,15 @@
 \maketitle
 \cleardoublepage
 
+%\vspace*{10cm}
+%\begin{flushright}
+%\textsl{A mio nonno Guido, fiero internauta ed utilizzatore di un Tablet 10'' ad ottant'anni.}
+
+%\textsl{Alla mia famiglia, che tutt'ora non ha ben capito quello che faccio nella vita.}
+%\end{flushright}
+
+%\cleardoublepage
+
 % rest of the document
 \begin{abstract}
 	\thispagestyle{plain}
@@ -51,8 +60,6 @@
 \renewcommand\printchapternum{}
 \renewcommand\afterchapternum{}
 \renewcommand\printchaptertitle[1]{\chaptitlefont \thechapter. \space #1}
-
-%\setlength{\intextsep}{1pt}%
 
 \chapter{Il progetto SeismoCloud}
 
@@ -183,6 +190,7 @@ Sebbene i valori siano così differenti, come si evince dalla tabella \ref{table
 Dal punto di vista utente, contribuire diventa rapido ed economico: una volta installata la \textit{app}, il sistema si avvia, acquisisce la posizione GPS ed entra a far parte della rete. Si è stimato che, per poter coprire un territorio come quello italiano occorrono dai 3000 ai 4000 sismometri, siano essi \textit{app} per cellulari o dispositivi fisici.
 
 \section{Algoritmo di rilevamento}
+\label{section:algoritmo}
 
 Il funzionamento del sistema è il seguente: ogni dispositivo (smartphone o dispositivo \textit{IoT}) ha almeno due stati: \textbf{ALIVE} e \textbf{QUAKE}. Un dispositivo nello stato di \textbf{ALIVE} effettua una rilevazione dell'accelerazione su ogni asse ogni $20ms$, e viene calcolata la componente del vettore risultante mediante la formula~\ref{eq:vettoreris}. Il valore viene quindi confrontato con un valore di soglia calcolato (\ref{eq:soglia}) in modo da filtrare il rumore di fondo e, se la rilevazione risulta superiore alla soglia, il dispositivo informa il server comunicando l'attuale accelerazione rilevata, la posizione geografica ed il momento della rilevazione espresso in tempo UNIX\footnote{Il "tempo UNIX" è definito come il numero di secondi dallo \textit{UNIX Epoch Time}, ovvero dal 1 Gennaio 1970} (con precisione di $\pm1ms$), e successivamene passa allo stato di \textbf{QUAKE}.
 
@@ -847,38 +855,111 @@ serviceSingletonSemaphore.release();
 
 \chapter{Ottimizzazione dell'uso di memoria e CPU nel codice}
 
+Infine, ma non meno importanti, altre due risorse da ottimizzare sono il tempo nel processore principale (CPU) e la memoria temporanea utilizzata (RAM). Anche in questo campo gli \textit{smartphones} hanno rappresentato un punto di svolta nella potenza di calcolo e nella capacità di memoria dei dispositivi cellulari. Eppure, la richiesta di nuove e più complesse funzionalità spinge sempre al limite la tecnologia, con chip che tentano di mantenere un basso consumo con potenze sempre più elevate. Anche in questo campo una buona progettazione della applicazione può portare benefici considerevoli.
+
 \section{Transito dati tra front-end e servizio in background}
 
-\paragraph{Activity lifecycle} Con la frase \textit{Activity lifecycle} si intende il ciclo di vita di una schermata (chiamata \textit{activity}) di una applicazione Android. Rispettare il ciclo di vita di una \textit{activity} è importante per rispettare le risorse che ci sono a bordo dello smartphone, specialmente, come in questo caso, quando la tipologia e la cardinalità dei dati potrebbe essere un problema.
+\paragraph{Activity lifecycle} Con \textit{Activity lifecycle} si intende il ciclo di vita di una schermata (che gli sviluppatori chiamano \textit{activity}) di una applicazione Android. Rispettare il ciclo di vita di una \textit{activity} è importante per rispettare le risorse che ci sono a bordo dello smartphone, specialmente, come in questo caso, quando la tipologia e la cardinalità dei dati potrebbe essere un problema.
 
-Riprendendo quello che si è
+\begin{figure}[h]
+\centering
+\caption{Ciclo di vita di una \textit{activity} Android}
+\label{fig:activitylifecycle}
+\includegraphics[width=\textwidth]{app/android_activity_lifecycle}
+\end{figure}
 
-Qui si descrive la politica utilizzata per mantere l'applicazione attiva (notifica permanente) poiché Android pone le applicazioni in sleep. Si spiega anche il wakelock sulla CPU, la sospensione dell'aggiornamento dati in background delle activity quando non sono in vista.
+In molte \textit{activity} è necessario interagire con il servizio in background di rilevamento, poiché ad esso sono lasciati diversi compiti tra cui, ad esempio, il compito di tracciare la posizione dell'utente: una tra le \textit{activity} che richiedono la posizione è la mappa dei terremoti, che necessita della posizione attuale per indicare la distanza dell'utente dall'epicentro.
+
+Questo passaggio di dati avveniva, principalmente, attraverso l'interrogazione continua del servizio in background da parte della \textit{activity} corrente, per ogni activity. Poiché, in principio, erano stati considerati solo gli stati \textbf{Created} e \textbf{Destroyed} del ciclo di vita, fintanto che la \textit{activity} rimaneva in memoria, veniva utilizzato tempo di CPU e spazio RAM per trasportare i dati tra il servizio e la \textit{activity}, danneggando anche la \textit{user experience}.
+
+\paragraph{Adeguamento del codice} E' stato quindi reingegnerizzato il codice delle \textit{activity} che lo richiedevano, adeguando le varie fasi al grafo degli stati in figura \ref{fig:activitylifecycle}:
+\begin{itemize}
+\item Ogni richiesta di un dato che può non cambiare per un tempo ragionevole (ad esempio, la provincia/regione dalla localizzazione) viene richiesto nel metodo \texttt{onStart()} e viene fatta una sola volta
+\item Ogni richiesta di un dato che può variare poco nel tempo di utilizzo della App (ad esempio, lo stato del servizio in background) viene ricevuto, dalla \textit{activity}, per mezzo di un \texttt{BroadcastReceiver}, ovvero un sistema di sottoscrizione degli eventi
+\item Ogni richiesta di un dato che può variare molto nel tempo di utilizzo della App (ad esempio il valore corrente di accelerazione letto dal servizio) viene interrogato mediante un servizio "di appoggio" della \textit{activity}, avviato nel metodo \texttt{onResume()} e fermato nel metodo \texttt{onPause()}, eventualmente distrutto nel metodo \texttt{onDestroy()}
+\end{itemize}
+
+Poiché lo stato di \textbf{Paused} viene invocato quando l'\textit{activity} non è più oggetto principale dell'attenzione dell'utente (ad esempio perché è subentrato un \textit{popup}), ogni qual volta si passa in questo stato viene risparmiata CPU e RAM rispetto all'attività precedente. Inoltre, se il dato è stato identificato come un dato che non cambia significativamente durante l'utilizzo della App, tale dato viene richiesto una sola volta o viene informata l'\textit{activity} tramite una segnalazione, e non un \textit{polling} come prima, e questo rappresenta di nuovo una ottimizzazione notevole.
+
+
+\begin{listing}[h]
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{java}
+registerReceiver(new BroadcastReceiver() {
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		MySeismoActivity.this.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				updateServiceStatusLed(...);
+			}
+		});
+	}
+}, new IntentFilter(Config.SERVICE_CHANGE_STATUS));
+\end{minted}
+\caption{Registrazione del \texttt{BroadcastReceiver} per il cambio di stato del servizio in background - porzione di codice dalla activity \texttt{MySeismoActivity} (activity principale)}
+\end{listing}
+
+
+\begin{listing}[h]
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{java}
+Location myLocation = null;
+MySeismoService service = MySeismoService.getInstance();
+if (MySeismoService.isServiceOn() && service != null) {
+	myLocation = service.getLocation();
+}
+\end{minted}
+\caption{Accesso, tramite \textit{singleton}, alla localizzazione acquisita dal servizio (se disponibile) - porzione di codice del metodo \texttt{onStart()} della \textit{activity} \texttt{Map2Activity} (mappa terremoti)}
+\end{listing}
 
 \section{Calcolo media e varianza online}
 
-Per ogni valore rilevato nello stato \textit{ALIVE}, inoltre, vengono aggiornati i seguenti valori:
+L'algoritmo di rilevamento specificato nella sezione~\ref{section:algoritmo} fa utilizzo della media e della varianza dei valori rilevati. Poiché la rilevazione viene fatta ogni $20ms$, ogni secondo di attività comporta la memorizzazione di 50 valori che, al netto dei puntatori e di altri riferimenti del runtime di Android, vuol dire un incremento minimo di 400 bytes/s, ovvero di 24KB al minuto. Inoltre, aggiornare la media ogni volta che si aggiunge un valore vuol dire eseguire una iterazione (tra tutti i valori memorizzati) per la somma della media, e una seconda iterazione per il calcolo dello scarto quadratico medio, con un tempo complessivo di $\Theta(nm)$ per ogni valore rilevato (50 volte al secondo).
+
+\paragraph{Algoritmi \textit{online}} Per ridurre il consumo di memoria ed l'utilizzo della CPU per il ricalcolo della media ad ogni valore, si è utilizzato un algoritmo definito \textit{online}\footnote{Un algoritmo viene definito \textit{online} se è in grado di processare un oggetto di input per volta (mantenendo l'invariante che il risultato rappresenta il valore atteso), potenzialmente per un numero infinito di oggetti}, che effettua il calcolo della media e dello scarto quadratico medio al momento, e non richiede la memorizzazione di tutti i valori. Questo è possibile grazie alla definizione e all'utilizzo delle relazioni di ricorrenza per la media (formula~\ref{eq:avgrec}) e per lo scarto quadratico medio (formula~\ref{eq:sqmrec}).
+
 \begin{equation}
-\Delta = Acceleration - \rho
+\Delta = Acceleration - M_{i-1}
 \end{equation}
 \begin{equation}
-\rho = \rho + {\Delta \over |detections|}
+\label{eq:avgrec}
+M_i = M_{i-1} + {\Delta \over |detections|}
 \end{equation}
 \begin{equation}
-\sigma = \sigma + \Delta * (Acceleration - \rho)
-\end{equation}
-\begin{equation}
-Threshold = \rho + (\sqrt{\sigma \over (|detections|-1)} * \alpha)
+\label{eq:sqmrec}
+\sigma_i = \sigma_{i-1} + \Delta * (Acceleration - M_i)
 \end{equation}
 
 dove: \begin{itemize}
 \item $Acceleration \in Z^+$ rappresenta il valore di accelerazione attuale
-\item $\rho \in Z^+$ è la media dei valori delle rilevazioni, e $\sigma \in Z^+$ lo scarto quadratico medio, entrambi calcolati mediante un \textit{algoritmo online}\footnote{Un algoritmo viene definito \textit{online} se è in grado di processare un oggetto di input per volta (mantenendo l'invariante che il risultato rappresenta il valore atteso), potenzialmente per un numero infinito di oggetti}
-\item $Threshold \in Z^+$ rappresenta la soglia di confronto per il valore di accelerazione, utilizzata per decidere se è da informare il server
-\item $\alpha \in Z^+$ rappresenta un valore moltiplicativo fornito dal server (aggiornato a seguito, ad esempio, di eccessive segnalazioni o soglia troppo alta)
+\item $|detections| \in N^+, |detections| > 0$ rappresenta il numero di rilevazioni fatte fin'ora
+\item $\Delta \in Z^+$ rappresenta la differenza tra l'accelerazione e la media attuale
+\item $M_i \in Z^+$ è la media dei valori delle rilevazioni
+\item $\sigma_i \in Z^+$ è lo scarto quadratico medio
 \end{itemize}
 
-Qui si descrive la politica utilizzata, nella costruzione del codice, per minimizzare lo spreco di memoria (esempio: media/varianza mobile).
+L'occupazione di memoria, grazie all'utilizzo di questo algoritmo, è costante nel tempo. Inoltre, la complessità di questo algoritmo è $\Theta(1)$.
+
+\chapter{Ottimizzazione in fase di sviluppo}
+
+Si spiega l'adozione di particolari meccanismi per la gestione ottimizzata del processo di sviluppo allo scopo di ridurre gli errori del processo in background:
+
+\begin{itemize}
+\item Utilizzo della libreria ACRA per l'immediata segnalazione di errori della app (da produzione)
+\item Utilizzo della libreria LeakCanary per la ricerca di memory leak
+\item Utilizzo delle librerie Parceler e Android Annotations per ridurre la quantità di codice ridondante
+\item Continuos integration per la verifica dei build ed instrumentation test
+\item Verifica del codice tramite SonarQube per aderenza agli standard Java/Android e risultati di analisi statica del codice
+\end{itemize}
 
 \clearpage
 
@@ -889,21 +970,31 @@ Qui si descrive la politica utilizzata, nella costruzione del codice, per minimi
 \includegraphics[width=\textwidth]{SeismoCloud_flowdiag}
 \end{figure}
 
-%
-%\chapter{Sviluppo e test}
-%
-%Si spiega l'adozione di particolari meccanismi per la gestione ottimizzata del processo di sviluppo:
-%
-%\begin{itemize}
-%\item Utilizzo della libreria ACRA per l'immediata segnalazione di errori della app (da produzione)
-%\item Utilizzo della libreria LeakCanary per la ricerca di memory leak
-%\item Utilizzo delle librerie Parceler e Android Annotations per ridurre la quantità di codice ridondante
-%\item Sistemi di controllo versione: branch per funzionalità, sviluppo parallelo
-%\item Continuos integration per la verifica dei build ed instrumentation test
-%\item Verifica del codice tramite SonarQube per aderenza agli standard Java/Android e risultati di analisi statica del codice
-%\end{itemize}
+\chapter{Conclusioni}
 
-\chapter{Conclusioni e sviluppi futuri}
+\section{Risultati ottenuti}
+
+Abbiamo visto come poter modificare l'applicazione allo scopo di ottimizzare l'utilizzo delle risorse, per primo il \textbf{consumo della batteria}: considerando i contesti di attivazione per il risparmio energetico (sezione~\ref{section:contesti}), riducendo l'impatto della comunicazione con il frontend (sezione~\ref{section:frontend}), e, passando per una buona gestione dei sensori (sezione~\ref{section:sensori}), per arrivare alla definizione ed uso di una curva di scarica (sezione~\ref{section:curvascarica}).
+
+\medskip
+
+Un secondo passaggio ci ha permesso di \textbf{ottimizzare la comunicazione con il server}, grazie all'implementazione di MQTT (sezione~\ref{section:mqtt}) e di un sistema chiamato \textit{pushback} (sezione~\ref{section:pushback}).
+
+\medskip
+
+Un minore, ma comunque importante contributo lo ha dato l'\textbf{ottimizzazione dell'uso di memoria e di CPU}, per i quali sono stati affrontati i problemi del transito dei dati tra front-end e servizio (sezione~\ref{section:frontend}) e l'algoritmo di calcolo della soglia per le parti di media e varianza (sezione~\ref{section:onlinealg})
+
+\medskip
+
+Infine, sono state introdotte nuove librerie in grado di generare in modo ottimale il codice ridondante, ed è stato introdotto un sistema di \textit{pipeline} per monitorare costantemente l'uso delle risorse all'interno delle build nel processo di sviluppo.
+
+\vspace*{1cm}
+
+\textbf{L'applicazione}, con questo livello di ottimizzazione, \textbf{è in grado di consumare le risorse in modo molto più efficace di prima}, migliorando l'usabilità dello smartphone e garantendosi una migliore coesistenza all'interno dello stesso.
+
+\clearpage
+
+\section{Sviluppi futuri}
 
 \begin{itemize}
 \item Utilizzo di un sistema di spegnimento controllato dal server per l'ottimizzazione geografica
