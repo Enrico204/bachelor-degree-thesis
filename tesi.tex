@@ -359,9 +359,35 @@ Poiché la precisione della localizzazione via rete cellulare è molto variabile
 
 \paragraph{Controllo della connessione dati} Un altro fattore importante per una buona rilevazione è la presenza della connessione di rete (Wi-Fi o rete cellulare). Qualora venga a mancare la connessione Internet non si potrà avvertire per tempo il server: il sistema è quindi portato nella posizione di \textbf{MOVE\_BACKOFF} con l'algoritmo sopra citato. Questo permette di risparmiare batteria quando il segnale è assente.
 
-Per l'identificazione dello stato di \textit{mancanza della connessione dati} si sono utilizzate le API di Android: il sistema operativo infatti fornisce già informazioni riguardo ai cambimenti di stato della connessione attraverso il \textit{dispatch} di un evento informativo.
+Per l'identificazione dello stato di \textit{mancanza della connessione dati} si sono utilizzate le API di Android: il sistema operativo infatti fornisce già informazioni riguardo ai cambimenti di stato della connessione attraverso il \textit{dispatch} di un evento informativo (denominato ``\textit{CONNECTION\_CHANGED}") la quale scatena l'esecuzione del codice \ref{listing:connchange}.
 
-\paragraph{La batteria} Infine, è stata fatta una analisi sulla batteria e sul consumo. In prima istanza è stato considerato lo status di "\textbf{risparmio energia}" che Android attiva nel momento in cui la batteria raggiunge un valore prefissato (in genere, a meno di cambiamenti fatti dall'utente, il valore è il 15\% della capacità). Grazie ad un \textit{handler} viene intercettato questo evento e viene posto il servizio nella fase di \textbf{MOVE\_BACKOFF} indipendentemente dalle condizioni favorevoli sopra citate. Dopodiché si è provveduto ad effettuare uno studio approfondito, con diversi test, meglio specificata nella sezione \ref{section:batteria}.
+
+\begin{listing}[H]
+\caption{Codice eseguito al cambio di stato della connettività a bordo del telefono}
+\label{listing:connchange}
+\begin{minted}[mathescape,
+               linenos,
+               numbersep=5pt,
+               gobble=0,
+               frame=lines,
+               framesep=2mm]{java}
+ConnectivityManager cManager =
+	(ConnectivityManager) ctx.getSystemService(CONNECTIVITY_SERVICE);
+NetworkInfo mWifi = cManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+NetworkInfo mData = cManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+
+if (mWifi.isConnected() || mData.isConnected())
+	MySeismoService.startService(context);
+else
+	MySeismoService.stopService(context);
+\end{minted}
+\end{listing}
+
+\paragraph{La batteria} Infine, è stata fatta una analisi sulla batteria e sul consumo. In prima istanza è stato considerato lo status di "\textbf{risparmio energia}" che Android attiva nel momento in cui la batteria raggiunge un valore prefissato (in genere, a meno di cambiamenti fatti dall'utente, il valore è il 15\% della capacità). Grazie ad un \textit{handler} viene intercettato questo evento e viene posto il servizio nella fase di \textbf{MOVE\_BACKOFF} indipendentemente dalle condizioni favorevoli sopra citate.
+
+Una seconda analisi ha riguardato il sotto-sistema \textbf{Doze} introdotto in \textbf{Android 6.0}: l'obiettivo di \textit{Doze} è di bloccare (a schermo spento) l'esecuzione delle applicazioni e disattivare le connessioni esterne, a scopo di risparmio energetico, anche se hanno ottenuto WakeLocks o altri meccanismi che tengono accesa la CPU. Poiché, in molti casi, queste applicazioni eseguono in background attività \textit{rimandabile}, \textbf{il sistema effettua delle accensioni ad intervalli regolari}, chiamate \textit{finestre di manutenzione}: in queste finestre temporali le app vengono riaccese ed il sistema si riconnette alle reti mobili. Ovviamente nel nostro caso questo rappresenta un problema, poiché la rilevazione deve avvenire sempre. Viene quindi richiesto al sotto-sistema \textit{Doze}, in fase di avvio, l'inserimento della nostra App nella lista delle eccezioni per questo algoritmo (tramite le API di Android).
+
+Dopodiché si è provveduto ad effettuare uno studio approfondito meglio specificato nella sezione \ref{section:batteria}.
 
 \paragraph{Conclusioni} Abbiamo quindi definito una serie di variabili che compongono il nostro \textbf{contesto di attivazione}, ovvero:
 
@@ -378,13 +404,13 @@ Questa definizione ci permette di stabilire, come abbiamo fatto, una istanza del
 
 \begin{table}[h]
 \centering
-\caption{Tempo di utilizzo delle risorse (media giornaliera)}
-\label{table:tempoutilizzo}
 \begin{tabular}{lllll}
 & \textbf{Servizio attivo} & \textbf{Servizio inattivo} & \textbf{Telefono spento} &  \\
 Algoritmo originale   & 18 ore e 24 min  & mai              & 5 ore 36 min &  \\
 Algoritmo ottimizzato & 6 ore e 36 min   & 11 ore e 48 min  & 5 ore 36 min &
 \end{tabular}
+\caption{Tempo di utilizzo delle risorse (media giornaliera)}
+\label{table:tempoutilizzo}
 \end{table}
 
 \begin{figure}[ht]
@@ -428,7 +454,7 @@ Move_Backoff;
 
 Sebbene l'ottimizzazione del front-end (nell'uso delle risorse e nell'interazione con l'utente) non sia lo scopo di questa tesi, ci sono alcuni aspetti inseriti nel funzionamento interno dell'interfaccia grafica che prevedono uno scambio di informazioni (e, a volte, interazioni più vicolanti) con il servizio di rilevamento che gira in background.
 
-\paragraph{Un requisito di HCI} Nello sviluppo dell'applicazione, prima delle ottimizzazioni citate qui, sono stati effettuati alcuni studi di \textit{Human-Computer Interaction}. Questi studi avevano come obiettivo migliorare la comunicazione con l'utente riguardo al concetto di "contributo nella rilevazione", e quindi era stato stabilito di inserire, nella schermata principale dell'applicazione, un box contenente il grafico dato dai valori di accelerazione (formula~\ref{eq:vettoreris}) nel tempo. Lo scopo di questo box è di mostrare all'utente quello che avviene e qual è lo stato del servizio di rilevamento che gira in background.
+\paragraph{Un requisito di HCI} Nello sviluppo dell'applicazione, prima delle ottimizzazioni citate qui, sono stati effettuati alcuni studi di \textit{Human-Computer Interaction}. Questi studi avevano come obiettivo migliorare la comunicazione con l'utente riguardo al concetto di "contributo nella rilevazione", e quindi era stato stabilito di inserire, nella schermata principale dell'applicazione, un box contenente il grafico dato dai valori di accelerazione (formula~\ref{eq:vettoreris} pagina \pageref{eq:vettoreris}) nel tempo. Lo scopo di questo box è di mostrare all'utente quello che avviene e qual è lo stato del servizio di rilevamento che gira in background.
 
 \begin{figure}[ht]
 \centering
@@ -465,7 +491,7 @@ Ogni modello di smartphone Android è dotato di un numero variabile di sensori, 
 \paragraph{La fascia economica} Il problema della mancanza del giroscopio probabilmente è molto conosciuto agli sviluppatori Android, i quali hanno messo a disposizione una libreria che sfrutta un altro sensore, diffuso tanto quanto l'accelerometro: il \textbf{magnetometro}. Grazie ai valori letti dal magnetometro e dall'accelerometro, è possibile calcolare l'attuale rotazione del telefono (rispetto al piano orizzontale).
 
 \begin{listing}[H]
-\caption{Porzione di codice che calcola la rotazione in base ai dati del magnetometro e dell'accelerometro}
+\caption{Porzione di codice che calcola la rotazione in base ai dati del magnetometro e dell'accelerometro grazie alla chiamata API alla libreria \texttt{SensorManager} di Android}
 \begin{minted}[mathescape,
                linenos,
                numbersep=5pt,
@@ -533,7 +559,9 @@ Una risorsa molto importante, dal punto di vista degli utenti, è la batteria: m
 
 \paragraph{La curva di scarica} In parte, le ottimizzazioni già presentate nella sezione \ref{section:contesti} hanno portato ad un risparmio energetico; tuttavia si è voluto studiare un sistema più "\textit{aggressivo}" per portare i consumi al minimo possibile. Sono partito quindi da quello che è il principale requisito per l'utente: \textbf{il telefono deve arrivare a fine giornata}, ovvero nessuna applicazione deve consumare così tanto da rendere il telefono scarico prima di avere una fonte di energia.
 
-Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente elettrica per cena, facendo una rapida analisi sui dati presenti sul \textit{database} è stato identificato, come \textit{target}, una \textbf{carica residua del 15\% alle ore 20:00}, partendo dal 100\% alle ore 08:00. E' stata quindi calcolata una curva lineare di scarica, con lo scopo di tenere il servizio attivo solo quando è sopra la soglia.
+Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente elettrica per cena, facendo una rapida analisi sui dati presenti sul \textit{database} è stato identificato, come \textit{target}, una \textbf{carica residua del 15\% alle ore 20:00}, partendo dal 100\% alle ore 08:00. E' stata quindi calcolata una curva lineare di scarica, con lo scopo di tenere il servizio attivo solo quando è sopra la soglia (alla figura~\ref{fig:expectedchart} è possibile vedere una simulazione del comportamento atteso per la curva di scarica). Inoltre è stato deciso, grazie sempre ai dati presenti nel \textit{database}, che i valori convenienti per la carica attesa della batteria sono il 100\% prima delle 8 di mattina (dato che molti ricaricano lo smartphone durante la notte) ed il 15\% per le ore successive alle 20 di sera.
+
+\pagebreak
 
 \begin{equation}
 \gamma = {85 \over 720}
@@ -548,6 +576,7 @@ Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente ele
     Threshold =
     \begin{cases}
         100 & \text{if hour} < 8\\
+        15 & \text{if hour} > 20\\
         {100 - ((\lambda - 480) * \gamma)} & \text{otherwise.}
     \end{cases}
 \end{equation}
@@ -555,7 +584,7 @@ Poichè in quasi tutti i casi le persone si trovano in un luogo con corrente ele
 Dove:
 \begin{itemize}
 \item $\gamma \in Z^+$: \textit{rate} di perdita della capacità della batteria per minuto nella fascia 8-20
-\item $\lambda \in N^+$: numero di minuti a partire dalla mezzanotte del giorno
+\item $\lambda \in N^+$: numero di minuti a partire dalla mezzanotte del giorno attuale
 \item $Threshold \in Z^+$ : la capacità della batteria (in percentuale) prevista per l'orario attuale
 \end{itemize}
 
@@ -568,11 +597,12 @@ Dove:
 
 Dopo averla applicata sui dispositivi di test, abbiamo subito notato un cambiamento notevole: nonostante un tempo di attività leggermente inferiore a causa dei distacchi per rispettare la soglia (cosa che, ovviamente, varia da telefono a telefono a seconda della capacità della batteria, delle applicazioni installate, dell'hardware del telefono e dell'utilizzo), il consumo evidenziato dai dati sul \textit{database} è nettamente migliore, come mostrato nella figura \ref{fig:batterychart}.
 
-\begin{figure}[h]
-\centering
-\caption{Capacità residua batteria (media) prima e dopo l'ottimizzazione: \textbf{Basic} rappresenta l'algoritmo di base senza ottimizzazioni, \textbf{Context-based alg} rappresenta l'algoritmo che utilizza solo i contesti di attivazione, mentre \textbf{Discharge-curve alg} rappresenta l'algoritmo corrente, che sfrutta sia i contesti di attivazione che la curva di scarica}
-\includegraphics[width=\textwidth]{database/batteryplot}
-\label{fig:batterychart}
+\begin{figure}[ht]
+
+\begin{adjustbox}{addcode={\begin{minipage}{\width}}{
+	\caption{Capacità residua batteria (media) prima e dopo l'ottimizzazione: \textbf{Basic} rappresenta l'algoritmo di base senza ottimizzazioni, \textbf{Context-based alg} rappresenta l'algoritmo che utilizza solo i contesti di attivazione, mentre \textbf{Discharge-curve alg} rappresenta l'algoritmo corrente, che sfrutta sia i contesti di attivazione che la curva di scarica}\label{fig:batterychart}\end{minipage}},rotate=90,center}
+      \includegraphics[width=\textwidth]{database/batteryplot}
+  \end{adjustbox}
 \end{figure}
 
 \clearpage
@@ -679,7 +709,7 @@ Come è ben visibile da una richiesta HTTP di una delle \textit{Application Prog
 
 \pagebreak 
 
-E' stata realizzata, quindi, una ricerca basata sui seguenti parametri:
+E' stata realizzata, quindi, una ricerca di un nuovo protocollo basata sui seguenti parametri:
 \begin{itemize}
 \item \textbf{alta affidabilità}: il dato deve arrivare a destinazione una volta che ho ricevuto la conferma di invio
 \item \textbf{bassa latenza}: l'apertura della connessione ed il transito dati devono impiegare il minor tempo possibile
@@ -696,8 +726,8 @@ Come risultato è stato scelto il protocollo \textbf{MQTT} (Message Queue Teleme
 \label{table:mqttdiff}
 \begin{tabular}{lll}
                     & \textbf{HTTP} & \textbf{MQTT} \\
-\textbf{Overhead} & da $\sim$200 a 2048 bytes & 5-7 bytes \\
-\textbf{Connessione} & aperta una volta soltanto & aperta ad ogni richiesta \\
+\textbf{Overhead} & da 200 a 2048 bytes & 5-7 bytes \\
+\textbf{Connessione} & aperta ad ogni richiesta & aperta una volta soltanto \\
 \textbf{Codifica header} & RFC 2822 & \textit{Type-Length-Value} \\
 \textbf{Schema di funzionamento} & \textit{request/response} & \textit{publisher/subscriber} \\
 \textbf{QoS} & - & 3 Livelli \\
@@ -710,12 +740,12 @@ Come risultato è stato scelto il protocollo \textbf{MQTT} (Message Queue Teleme
 Come si evince dalla tabella \ref{table:mqttdiff}, ci sono diversi vantaggi nell'uso di MQTT:
 
 \begin{itemize}
-\item L'overhead si riduce di due ordini di grandezza (riducendo, nel contempo, il tempo impiegato per trasmettere i dati)
-\item L'apertura della connessione ad inizio dell'attività (e non ogni volta) permette di avere tempi di latenza di trasmissione ridotti allo stretto necessario per l'invio dell'informazione stessa: l'HTTP, al contrario, per rispettare il \textit{three-way handshake} del protocollo TCP ad ogni trasmissione, aggiunge 3 volte il tempo di latenza e trasmissione del pacchetto, in più altre 4 volte per la chiusura della connessione a fine trasmissione
-\item La codifica TLV permette di "comprimere" le informazioni del protocollo, rispetto alla codifica stile RFC 2822, la quale richiede che il nome del campo ed il valore siano specificati come stringa\footnote{Un sistema TLV prevede che ci siano campi binari a dimensione prevalentemente fissa, contenenti i valori dei vari campi da inviare come header. Spesso, come in TCP/UDP/IP, non richiede la presenza di una "chiave" per il valore, poiché il valore si troverà sempre nella posizione indicata (e sarà sempre presente)}
-\item Le attività del servizio in background poco si adattano in uno schema tipo "richiesta/risposta" come quello di HTTP, mentre aderiscono di più ad un sistema di segnalazione come quello adottato da MQTT
-\item Il \textbf{Quality of Service} (QoS) è implementato solo in MQTT: è possibile, tramite questo protocollo, inviare dati con diversi livelli di "priorità/affidabilità".
-\item Le dimensioni delle implementazioni principali, come rappresentato nella tabella \ref{table:mqttdiff}, forniscono un ulteriore motivo per scegliere MQTT rispetto ad HTTP.
+\item L'\underline{overhead} si riduce di due ordini di grandezza (riducendo, nel contempo, il tempo impiegato per trasmettere i dati e l'utilizzo delle risorse del sistema)
+\item L'apertura della \underline{connessione} ad inizio dell'attività come fa MQTT, e non ogni volta come HTTP, permette di avere tempi di latenza di trasmissione ridotti allo stretto necessario per l'invio dell'informazione stessa: l'HTTP, dato il trasporto su TCP, deve attendere \textbf{ad ogni richiesta} i tempi del \textit{three-way handshake}, aggiungendo 3 volte il tempo di latenza del pacchetto all'inizio e altre 4 volte per la chiusura della connessione a fine trasmissione
+\item La \underline{codifica} degli \textit{header} come \textit{Type-Length-Value} permette di "comprimere" le informazioni del protocollo, rispetto alla codifica stile RFC 2822, la quale richiede che il nome del campo ed il valore siano specificati come stringa\footnote{Un sistema \textit{Type-Length-Value} prevede che ci siano campi binari organizzati in uno dei due modi: o terne di campo chiave (di pochi bytes), campo dimensione (di pochi bytes) e campo valore dell'header (numero di bytes variabili), oppure direttamente il valore (dimensione fissa) in un punto fisso del pacchetto dati, come ad esempio negli header TCP/UDP/IP. Per MQTT vedi figura \ref{fig:mqttpacket}}
+\item Le attività del servizio in background poco si adattano in uno \underline{schema} di tipo "richiesta/risposta" come quello di HTTP, mentre aderiscono di più ad un sistema di segnalazione come quello adottato da MQTT, dove ogni messaggio non richiede necessariamente una risposta in modo sincrono da parte del server
+\item Per \textbf{Quality of Service} (\underline{QoS}) si intende la capacità di un sistema di differenziare il trattamento delle informazioni che transitano, in modo da fornire garanzie sulla consegna e priorità di lavorazione. Il QoS è implementato solo in MQTT: è possibile inviare un pacchetto dati associandolo ad uno dei 3 diversi livelli di QoS.
+\item Le \underline{dimensioni} delle implementazioni principali, come rappresentato nella tabella \ref{table:mqttdiff}, forniscono un ulteriore motivo per scegliere MQTT rispetto ad HTTP per l'esigua dimensione della implementazione del primo rispetto al secondo
 \end{itemize}
 
 \begin{figure}[ht]
@@ -744,7 +774,7 @@ Come si evince dalla tabella \ref{table:mqttdiff}, ci sono diversi vantaggi nell
 \includegraphics[width=0.30\textwidth]{app/hsit}
 \end{wrapfigure}
 
-Una sezione non critica della applicazione, ma molto importante dal punto di vista dell'analisi degli utenti e delle risposte al terremoto, è la parte denominata "\textit{Hai sentito il terremoto?}". Questa sezione della App fa parte dell'omonimo progetto dell'\textit{Istituto Nazionale di Geofisica e Vulcanologia}, che mira ad identificare e classificare la risposta emotiva e culturale degli utenti mediante un questionario sugli effetti del terremoto sul proprio stato d'animo e sugli oggetti intorno a se. Un classico esempio di utilizzo di questi dati è l'\textbf{analisi della differenza tra l'intensità/magnitudo del terremoto e la percezione di esso} che ha la popolazione residente: questo è dato come indice della cultura e della prevenzione contro i sismi.
+Una sezione non critica della applicazione, ma molto importante dal punto di vista dell'analisi degli utenti e delle risposte al terremoto, è la parte denominata "\textit{Hai sentito il terremoto?}". Questa sezione della App fa parte dell'omonimo progetto dell'\textit{Istituto Nazionale di Geofisica e Vulcanologia}, che mira ad identificare e classificare la risposta emotiva e culturale degli utenti mediante un questionario sugli effetti del terremoto sul proprio stato d'animo e sugli oggetti intorno a se. Un classico esempio di utilizzo di questi dati è l'\textbf{analisi della differenza tra l'intensità/magnitudo del terremoto e la percezione di esso} che ha la popolazione residente: questo è dato, da INGV, come indice della cultura e della prevenzione contro i sismi.
 
 \paragraph{La sezione del questionario} Il questionario, realizzato all'interno della applicazione, si compone di diverse domande a scelta singola o multipla, prima delle quali l'utente è invitato ad indicare la sua posizione nel momento in cui ha avvertito il terremoto. Alla fine della compilazione le risposte al questionario vengono inserite in un unico file JSON che viene inviato al server e condiviso con INGV (per generare la mappa \ref{fig:hsitmap}). Poiché lo sviluppo della sezione del questionario è avvenuta parallelamente alle ottimizzazioni, è stato possibile, fin dal principio, studiare un sistema efficace di invio affidabile e asincrono, in modo da garantire la consegna del questionario anche in condizioni di scarsa connettività, e soprattutto \textbf{in modo asincrono rispetto all'attività utente} (in altre parole l'utente, terminato il questionario, non deve attendere che l'invio sia completato con successo: sarà una attività eseguita in background). Questo ultimo punto è importante dal punto di vista della \textit{Human Interaction} poiché non c'è nessun motivo per far attendere l'utente per una operazione che non richiede il suo intervento.
 
@@ -774,7 +804,7 @@ SetBackOff->End;
 }
 \end{figure}
 
-E' importante notare che il servizio utilizza una particolare API di Android denominata \texttt{AlarmManager.setInexactRepeating}: l'obiettivo di questa API è di fornire uno strumento, agli sviluppatori, per poter schedulare delle operazioni ad intervalli \textit{non precisi}. \textbf{La non-precisione di questo metodo è il meccanismo chiave per il risparmio di risorse}: poiché non è necessario che l'operazione di pushback sia eseguita esattamente in un certo momento, è molto più corretto attendere un tempo variabile ed essere svegliati quando gli algoritmi di \textit{resources management} di Android decidono che è arrivato il momento opportuno. Nel listato \ref{listing:pushback} è possibile notare questa cosa.
+E' importante notare che il servizio utilizza una particolare API di Android denominata \texttt{AlarmManager.setInexactRepeating}: l'obiettivo di questa API è di fornire uno strumento, agli sviluppatori, per poter schedulare delle operazioni ad intervalli \textit{non precisi}. \textbf{La non-precisione di questo metodo è il meccanismo chiave per il risparmio di risorse}: poiché non è necessario che l'operazione di pushback sia eseguita esattamente in un certo momento, è molto più corretto attendere un tempo variabile ed essere svegliati quando gli algoritmi di \textit{resources management} di Android decidono che è arrivato il momento opportuno (ad esempio quando il telefono è già in uso prima dell'intervallo, o se ci sono delle richieste di scheduling "esatte" inoltrate da altri servizi in un intorno del tempo specificato). Nel listato \ref{listing:pushback} è possibile vedere la chiamata nel codice.
 
 Il servizio rimuove dalla coda, dopo 24 ore, gli elementi per cui l'invio è fallito, notificando eventualmente gli sviluppatori tramite un \textit{log collector} chiamato ACRA.
 
@@ -808,7 +838,7 @@ serviceSingletonSemaphore.release();
 \label{listing:pushback}
 \end{listing}
 
-\begin{figure}[ht]
+\begin{figure}[h]
 \centering
 \caption{Grafico dei report inviati dagli utenti che collaborano al progetto per il terremoto di Rieti del 24 agosto 2016 (ore 03:36)}
 \label{fig:hsitmap}
