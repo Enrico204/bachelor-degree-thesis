@@ -1,8 +1,6 @@
 
 tesi.pdf: tesi.tex
-	pdflatex -shell-escape -synctex=1 -interaction=nonstopmode tesi.tex
-	# two-pass
-	pdflatex -shell-escape -synctex=1 -interaction=nonstopmode tesi.tex
+	latexmk -pdf -shell-escape tesi.tex
 
 clean:
-	rm -f *.pdf *.toc *.out *.log *.aux *.synctex.gz *.auto.dot
+	rm -f *.pdf *.toc *.out *.log *.aux *.synctex.gz *.auto.dot *.fls *.fdb_latexmk
