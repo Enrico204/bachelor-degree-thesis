@@ -117,7 +117,7 @@ Attualmente nel mondo sono presenti diverse reti di rilevamento. Per l'Italia IN
 
 L'energia sprigionata viene misurata in \textbf{magnitudo} su una scala di valutazione chiamata \textbf{Richter}, mentre gli eventuali danni provocati vengono espressi in \textbf{intensità} del terremoto tramite valori della scala \textbf{Mercalli-Cancani-Sieberg}, o MCS \footnote{Le due scale non hanno un legame diretto: un terremoto di piccola magnitudo può fare molti danni in alcune situazioni (e quindi essere di elevata intensità MCS); viceversa un terremoto di magnitudo molto elevata può avere intensità molto bassa in altre situazioni.}.
 
-Infine possiamo distinguere il punto di origine del terremoto sotto la superficie, chiamato \textbf{epicentro}, e la proiezione di questo punto sulla superficie terrestre, chiamato \textbf{ipocentro} \footnote{Stein, Seth; Wysession, Michael (2009). An Introduction to Seismology, Earthquakes, and Earth Structure. John Wiley \& Sons. ISBN 978-1444311310}.
+Infine possiamo distinguere il punto di origine del terremoto sotto la superficie, chiamato \textbf{epicentro}, e la proiezione di questo punto sulla superficie terrestre, chiamato \textbf{ipocentro} \cite{introdseismo}.
 
 \begin{figure}[ht]
 \caption{Epicentro, ipocentro (o focus) e faglia (\textit{fault plane})}
@@ -126,6 +126,7 @@ Infine possiamo distinguere il punto di origine del terremoto sotto la superfici
 \includegraphics[scale=0.6]{introduzione/epicenter_diagram}
 \end{figure}
 
+\clearpage
 
 \section{Prevedere o arginare i terremoti}
 
@@ -138,7 +139,7 @@ Come in tutte le calamità naturali (e non), abbiamo diversi ambiti da considera
 \item la \textbf{gestione dell'emergenza} e del post-emergenza, ovvero delle azioni da mettere in campo durante e dopo il presentarsi di una calamità
 \end{itemize}
 
-Nella fattispecie dei terremoti, la \textbf{previsione} è tutt'ora materiale di studio da parte del mondo scientifico poiché risulta impossibile\footnote{Uyeda, Seiya; Nagao, Toshiyasu; Kamogawa, Masashi (2009-05-29), "Short-term earthquake prediction: Current status of seismo-electromagnetics", Tectonophysics, 470 (3–4): 205–213} prevedere, allo stato attuale, quando e dove accadrà il prossimo sisma\footnote{Alessandro Amato (2016). Sotto i nostri piedi. Codice edizioni, Torino. ISBN 978-8875785727}. Nel tempo, tuttavia, i vari dati raccolti riguardo ai terremoti hanno permesso di costruire delle mappe di pericolosità sismica\footnote{Pubblicate per la prima volta nel 2004 e poi aggiornate man mano: \url{http://zonesismiche.mi.ingv.it/}}, le quali indicano zone con maggiore probabilità di terremoti importanti, andando ad integrare le azioni di informazione e di formazione che fanno parte della \textbf{prevenzione}.
+Nella fattispecie dei terremoti, la \textbf{previsione} è tutt'ora materiale di studio da parte del mondo scientifico poiché risulta impossibile prevedere, allo stato attuale, quando e dove accadrà il prossimo sisma \cite{eqpred} \cite{alessamato}. Nel tempo, tuttavia, i vari dati raccolti riguardo ai terremoti hanno permesso di costruire delle mappe di pericolosità sismica\footnote{Pubblicate per la prima volta nel 2004 e poi aggiornate man mano: \url{http://zonesismiche.mi.ingv.it/}}, le quali indicano zone con maggiore probabilità di terremoti importanti, andando ad integrare le azioni di informazione e di formazione che fanno parte della \textbf{prevenzione}.
 
 Nella gestione dell'emergenza possiamo riportare quello che avviene allo stato attuale all'accadere di un terremoto, rilevato (per l'Italia) dalla rete di sismometri di INGV: nel momento in cui un sisma viene percepito da un numero congruo di stazioni di rilevamento, il sistema effettua verifiche e calcoli e
 \begin{itemize}
@@ -161,9 +162,9 @@ Nella gestione dell'emergenza possiamo riportare quello che avviene allo stato a
 
 Il progetto SeismoCloud nasce dalla collaborazione dell'\textbf{Università degli Studi di Roma "La Sapienza"} e l'\textbf{Istituto Nazionale di Geofisica e Vulcanologia}. L'obiettivo di questo progetto è quello di implementare un sistema di \textbf{early warning} in \textit{crowdsourcing}\footnote{Un sistema si dice in \textit{crowdsourcing} quando i dati per il suo funzionamento vengono forniti dagli stessi utenti} per i terremoti, in grado di inserirsi nel \textit{gap} presente dal momento in cui il terremoto accade, al momento in cui INGV è in grado di individuarlo con l'affidabilità richiesta. Lo scopo del sistema quindi è di individuare i terremoti \textit{in tempo reale}, alla loro apparizione nell'ipocentro, ed \textbf{anticipare l'onda sismica nello spostamento} (dato che viaggia, mediamente, ad una velocità di 5 km/s), avvertendo la popolazione nel raggio di azione del terremoto. Questo sistema è chiamato, appunto, \textit{early warning}, poiché è in grado di fornire un avvertimento poco prima dell'evento sismico. \textbf{Il tempo tra l'avvertimento e l'arrivo della scossa varia in funzione della distanza}: partendo da un valore nullo all'epicentro, si può arrivare fino a 20 secondi di anticipo: questo, sommato al tempo che impiega una persona a comprendere che le oscillazioni sono effettivamente un terremoto (dato che l'arrivo dell'onda, sebbene veloce, è graduale), fornisce \textbf{tempo prezioso per mettersi in sicurezza} ed eventualmente lanciare automatismi in grado di rendere l'ambiente (azienda, casa, scuola) più sicuro (ad esempio, blocco della distribuzione del gas, messa in sicurezza degli ascensori, etc).
 
-Già da un decennio alcuni luoghi più sensibili al terremoto si stanno dotando di infrastrutture di \textit{early detection}. Il primo Paese nel 2006 è stato il Giappone, con un sistema denominato \textbf{Earthquake Early Warning}, installato dalla \textbf{JMA} (Japan Meteorological Agency). Tale sistema è composto da 4325 sismometri su tutto il territorio giapponese\footnote{Fonte: JMA, Japan Meteorological Agency, \url{http://www.jma.go.jp}}. Il funzionamento è il seguente: quando due o più sensori individuano una scossa di terremoto, il sistema invia degli avvisi immediati attraverso radio, TV e cellulari. L'efficacia\footnote{Per "efficacia" si intende la percentuale di allarmi emessi subito dopo l'individuazione di una onda-P aventi come magnitudo $\pm1$ il valore misurato per il terremoto} di questo sistema, misurata dallo stesso JMA sul territorio nazionale giapponese, varia dal 28\% al 76\% \footnote{Fonte: \url{https://en.wikipedia.org/wiki/Earthquake_Early_Warning_(Japan)}}.
+Già da un decennio alcuni luoghi più sensibili al terremoto si stanno dotando di infrastrutture di \textit{early detection}. Il primo Paese nel 2006 è stato il Giappone, con un sistema denominato \textbf{Earthquake Early Warning}, installato dalla \textbf{JMA} (Japan Meteorological Agency). Tale sistema è composto da 4325 sismometri su tutto il territorio giapponese \cite{jma}. Il funzionamento è il seguente: quando due o più sensori individuano una scossa di terremoto, il sistema invia degli avvisi immediati attraverso radio, TV e cellulari. L'efficacia\footnote{Per "efficacia" si intende la percentuale di allarmi emessi subito dopo l'individuazione di una onda-P aventi come magnitudo $\pm1$ il valore misurato per il terremoto} di questo sistema, misurata dallo stesso JMA sul territorio nazionale giapponese, varia dal 28\% al 76\% \cite{jma}.
 
-Tuttavia comporre reti di \textit{early detection} molto accurate e molto rapide, con gli stessi sismometri installati per lo studio dei terremoti, è una operazione \textbf{complessa} oltre che \textbf{costosa}: si deve posizionare il sismometro nel terreno (a volte a decine di metri di profondità), si deve mantenere un collegamento stabile e affidabile alla rete di rilevamento oltre che l'energia per far funzionare gli apparati in loco. Ecco perché SeismoCloud affronta il problema con una soluzione \textbf{crowd-sourced}: quasi tutti gli smartphone moderni sono dotati di sensori in grado di rilevare le vibrazioni (oltre che la posizione geografica) in modo relativamente accurato\footnote{Olson, Michael; Liu Annie; Faulkner Matthew; Chandy K. Mani; "Rapid Detection of Rare Geospatial Events: Earthquake Warning Applications" in DEBS '11, pp. 89-100, July 2011, ISBN 978-1-4503-0423-8}: questo permette ad ogni utilizzatore di un cellulare, tramite una app denominata \textbf{SeismoCloud}, di contribuire alla rilevazione dei terremoti. Inoltre, con l'esplosione dell'\textit{IoT}\footnote{\textit{Internet of Things}, letteralmente \textit{internet delle cose} è l'insieme dei piccoli dispositivi, che eseguono un gruppo di funzioni ristrette (ad esempio, accendi/spegni la luce), connessi alla rete Internet} ed il costo contenuto dell'hardware di questa categoria, reti hobbystiche e comunitarie (come ad esempio le Mesh Networks) possono contribuire in modo aperto e libero.
+Tuttavia comporre reti di \textit{early detection} molto accurate e molto rapide, con gli stessi sismometri installati per lo studio dei terremoti, è una operazione \textbf{complessa} oltre che \textbf{costosa}: si deve posizionare il sismometro nel terreno (a volte a decine di metri di profondità), si deve mantenere un collegamento stabile e affidabile alla rete di rilevamento oltre che l'energia per far funzionare gli apparati in loco. Ecco perché SeismoCloud affronta il problema con una soluzione \textbf{crowd-sourced}: quasi tutti gli smartphone moderni sono dotati di sensori in grado di rilevare le vibrazioni (oltre che la posizione geografica) in modo relativamente accurato\cite{eewapp}: questo permette ad ogni utilizzatore di un cellulare, tramite una app denominata \textbf{SeismoCloud}, di contribuire alla rilevazione dei terremoti. Inoltre, con l'esplosione dell'\textit{IoT}\footnote{\textit{Internet of Things}, letteralmente \textit{internet delle cose} è l'insieme dei piccoli dispositivi, che eseguono un gruppo di funzioni ristrette (ad esempio, accendi/spegni la luce), connessi alla rete Internet} ed il costo contenuto dell'hardware di questa categoria, reti hobbystiche e comunitarie (come ad esempio le Mesh Networks) possono contribuire in modo aperto e libero.
 
 \pagebreak
 %
@@ -182,16 +183,16 @@ Essendo un sistema in \textit{crowdsourcing}, i dati della rete provengono dagli
 
 \begin{table}[h]
 \centering
-\caption{Confronto tra un accelerometro della rete IV (IV.LATB, posizionato a Latina) con un accelerometro di uno smartphone}
+\caption{Confronto tra l'accelerometro CMG-5T della rete IV (sismometro IV.LATB, posizionato a Latina) con l'accelerometro di uno smartphone ADXL345}
 \label{table:datisensori}
 \begin{tabular}{lll}
                     & \textbf{Frequenza massima (Hz)} & \textbf{Precisione (g)} \\
-\textbf{CMG-5T} (IV.LATB) & 100 & $\pm 2.384 * 10^{-7}$ \\
-\textbf{ADXL345}          & 50 & $\pm 3.91 * 10^{-3}$
+\textbf{CMG-5T} \cite{ivlatb} & 100 & $\pm 2.384 * 10^{-7}$ \\
+\textbf{ADXL345} \cite{accelman}          & 50 & $\pm 3.91 * 10^{-3}$
 \end{tabular}
 \end{table}
 
-Sebbene i valori siano così differenti, come si evince dalla tabella \ref{table:consumosensori}, poiché le onde sismiche hanno frequenze tra 0.1 e 15 Hz\footnote{Fonte: USGS, U.S. Geological Survey; \url{https://earthquake.usgs.gov/learn/facts.php}} la frequenza è adatta al rilevamento. La sensibilità, sebbene nettamente inferiore, è sufficiente ad individuare i terremoti in superficie\footnote{    Francesco Finazzi, Alessandro Fassò; "A statistical approach to crowdsourced smartphone-based earthquake early warning systems"; Stochastic Environmental Research and Risk Assessment.  doi:10.1007/s00477-016-1240-8}
+Sebbene i valori siano così differenti, come si evince dalla tabella \ref{table:consumosensori}, poiché le onde sismiche hanno frequenze tra 0.1 e 15 Hz\footnote{Fonte: USGS, U.S. Geological Survey; \url{https://earthquake.usgs.gov/learn/facts.php}} la frequenza è adatta al rilevamento. La sensibilità, sebbene nettamente inferiore, è sufficiente ad individuare i terremoti in superficie \cite{finazzi}.
 
 \begin{figure}[ht]
 \centering
@@ -415,7 +416,7 @@ else
 
 \paragraph{La batteria} Infine, è stata fatta una analisi sulla batteria e sul consumo. In prima istanza è stato considerato lo status di "\textbf{risparmio energia}" che Android attiva nel momento in cui la batteria raggiunge un valore prefissato (in genere, a meno di cambiamenti fatti dall'utente, il valore è il 15\% della capacità). Grazie ad un \textit{handler} viene intercettato questo evento e viene posto il servizio nella fase di \textbf{MOVE\_BACKOFF} indipendentemente dalle condizioni favorevoli sopra citate.
 
-Una seconda analisi ha riguardato il sotto-sistema \textbf{Doze} introdotto in \textbf{Android 6.0}: l'obiettivo di \textit{Doze} è di bloccare (a schermo spento) l'esecuzione delle applicazioni e disattivare le connessioni esterne, a scopo di risparmio energetico, anche se hanno ottenuto WakeLocks o altri meccanismi che tengono accesa la CPU. Poiché, in molti casi, queste applicazioni eseguono in background attività \textit{rimandabile}, \textbf{il sistema effettua delle accensioni ad intervalli regolari}, chiamate \textit{finestre di manutenzione}: in queste finestre temporali le app vengono riaccese ed il sistema si riconnette alle reti mobili. Ovviamente nel nostro caso questo rappresenta un problema, poiché la rilevazione deve avvenire sempre. Viene quindi richiesto al sotto-sistema \textit{Doze}, in fase di avvio, l'inserimento della nostra App nella lista delle eccezioni per questo algoritmo (tramite le API di Android).
+Una seconda analisi ha riguardato il sotto-sistema \textbf{Doze} introdotto in \textbf{Android 6.0} \cite{doze}: l'obiettivo di \textit{Doze} è di bloccare (a schermo spento) l'esecuzione delle applicazioni e disattivare le connessioni esterne, a scopo di risparmio energetico, anche se hanno ottenuto WakeLocks o altri meccanismi che tengono accesa la CPU. Poiché, in molti casi, queste applicazioni eseguono in background attività \textit{rimandabile}, \textbf{il sistema effettua delle accensioni ad intervalli regolari}, chiamate \textit{finestre di manutenzione}: in queste finestre temporali le app vengono riaccese ed il sistema si riconnette alle reti mobili. Ovviamente nel nostro caso questo rappresenta un problema, poiché la rilevazione deve avvenire sempre. Viene quindi richiesto al sotto-sistema \textit{Doze}, in fase di avvio, l'inserimento della nostra App nella lista delle eccezioni per questo algoritmo (tramite le API di Android).
 
 Dopodiché si è provveduto ad effettuare uno studio approfondito meglio specificato nella sezione \ref{section:curvascarica}.
 
@@ -577,9 +578,9 @@ L'ipotesi era che questa diminuzione di frequenza fosse apprezzabile, sia dal pu
 \begin{tabular}{lllll}
 & \textbf{In fase di misura} & \textbf{Stand-by} & \\
 Accelerometro + Magnetometro \\
-ADXL345\footnote{integrati} & $40 \mu A$ & $0.1 \mu A$ &  \\
+ADXL345\cite{accelman} & $40 \mu A$ & $0.1 \mu A$ &  \\
 Giroscopio \\
-L3G4200D\footnote{\url{https://cdn.sparkfun.com/datasheets/Sensors/Gyros/3-Axis/CD00265057.pdf}} & $6.1mA$ & $0.2mA$ &
+L3G4200D\cite{gyroman} & $6.1mA$ & $0.2mA$ &
 \end{tabular}
 \end{table}
 
@@ -757,7 +758,7 @@ Come risultato è stato scelto il protocollo \textbf{MQTT} (Message Queue Teleme
 \caption{Principali differenze tra HTTP e MQTT}
 \label{table:mqttdiff}
 \begin{tabular}{lll}
-                    & \textbf{HTTP} & \textbf{MQTT} \\
+                    & \textbf{HTTP} \cite{http} & \textbf{MQTT} \cite{mqtt} \\
 \textbf{Overhead} & da 200 a 2048 bytes & 5-7 bytes \\
 \textbf{Connessione} & aperta ad ogni richiesta & aperta una volta soltanto \\
 \textbf{Codifica header} & RFC 2822 & \textit{Type-Length-Value} \\
@@ -884,7 +885,7 @@ Infine, ma non meno importanti, altre due risorse da ottimizzare sono il tempo n
 
 \section{Transito dati tra front-end e servizio in background}
 
-\paragraph{Activity lifecycle} Con \textit{Activity lifecycle} si intende il ciclo di vita di una schermata (che gli sviluppatori chiamano \textit{activity}) di una applicazione Android. Rispettare il ciclo di vita di una \textit{activity} è importante per rispettare le risorse che ci sono a bordo dello smartphone, specialmente, come in questo caso, quando la tipologia e la cardinalità dei dati potrebbe essere un problema.
+\paragraph{Activity lifecycle} Con \textit{Activity lifecycle} si intende il ciclo di vita di una schermata (che gli sviluppatori chiamano \textit{activity}) di una applicazione Android. Rispettare il ciclo di vita di una \textit{activity} è importante per rispettare le risorse che ci sono a bordo dello smartphone, specialmente, come in questo caso, quando la tipologia e la cardinalità dei dati potrebbe essere un problema \cite{activitylifecycle}.
 
 \begin{figure}[h]
 \centering
@@ -951,7 +952,7 @@ if (MySeismoService.isServiceOn() && service != null) {
 
 L'algoritmo di rilevamento specificato nella sezione~\ref{section:algoritmo} fa utilizzo della media e della varianza dei valori rilevati. Poiché la rilevazione viene fatta ogni $20ms$, ogni secondo di attività comporta la memorizzazione di 50 valori che, al netto dei puntatori e di altri riferimenti del runtime di Android, vuol dire un incremento minimo di 400 bytes/s, ovvero di 24KB al minuto. Inoltre, aggiornare la media ogni volta che si aggiunge un valore vuol dire eseguire una iterazione (tra tutti i valori memorizzati) per la somma della media, e una seconda iterazione per il calcolo dello scarto quadratico medio, con un tempo complessivo di $\Theta(nm)$ per ogni valore rilevato (50 volte al secondo).
 
-\paragraph{Algoritmi \textit{online}} Per ridurre il consumo di memoria ed l'utilizzo della CPU per il ricalcolo della media ad ogni valore, si è utilizzato un algoritmo definito \textit{online}\footnote{Un algoritmo viene definito \textit{online} se è in grado di processare un oggetto di input per volta (mantenendo l'invariante che il risultato rappresenta il valore atteso), potenzialmente per un numero infinito di oggetti}, che effettua il calcolo della media e dello scarto quadratico medio al momento, e non richiede la memorizzazione di tutti i valori. Questo è possibile grazie alla definizione e all'utilizzo delle relazioni di ricorrenza per la media (formula~\ref{eq:avgrec}) e per lo scarto quadratico medio (formula~\ref{eq:sqmrec}).
+\paragraph{Algoritmi \textit{online}} Per ridurre il consumo di memoria ed l'utilizzo della CPU per il ricalcolo della media ad ogni valore, si è utilizzato un algoritmo definito \textit{online}\footnote{Un algoritmo viene definito \textit{online} se è in grado di processare un oggetto di input per volta (mantenendo l'invariante che il risultato rappresenta il valore atteso), potenzialmente per un numero infinito di oggetti. \cite{onlinealg}}, che effettua il calcolo della media e dello scarto quadratico medio al momento, e non richiede la memorizzazione di tutti i valori. Questo è possibile grazie alla definizione e all'utilizzo delle relazioni di ricorrenza per la media (formula~\ref{eq:avgrec}) e per lo scarto quadratico medio (formula~\ref{eq:sqmrec}) \cite{onlineavg}.
 
 \begin{equation}
 \Delta = Acceleration - M_{i-1}
@@ -1051,7 +1052,7 @@ public class SurveyActivity extends AppCompatActivity {
 \end{minted}
 \end{listing}
 
-Chiaramente usare \textbf{Android Annotations} ha molti vantaggi. Si è stimato che il codice diminuisce in media di circa il 30\%. Inoltre, alcuni passaggi sono molto più intuitivi (ad esempio, la presenza della annotazione \texttt{@Extra} di fianco alla dichiarazione di \texttt{param1} nel codice indica subito che si tratta di un parametro proveniente dall'esterno della \textit{activity}). L'adozione di questa libreria è stata fatta in modo graduale, poiché non è necessario utilizzarla in modo esclusivo rispetto alle tecniche standard di Android.
+Chiaramente usare \textbf{Android Annotations} ha molti vantaggi. Si è stimato che il codice diminuisce in media di circa il 30\%\footnote{secondo gli autori della libreria}. Inoltre, alcuni passaggi sono molto più intuitivi (ad esempio, la presenza della annotazione \texttt{@Extra} di fianco alla dichiarazione di \texttt{param1} nel codice indica subito che si tratta di un parametro proveniente dall'esterno della \textit{activity}). L'adozione di questa libreria è stata fatta in modo graduale, poiché non è necessario utilizzarla in modo esclusivo rispetto alle tecniche standard di Android.
 
 \clearpage
 
@@ -1194,7 +1195,61 @@ Nonostante la \textit{virtual machine} Android sia notevolmente migliorata nel t
 
 \subsection{Esplorare ed implementare altre tecniche}
 
-Durante la scrittura di questa tesi ed i test finali è stata individuata una pubblicazione del 2010 che riporta interessanti tecniche di ottimizzazione (diverse da quelle implementate in questa tesi) per il monitoraggio continuo della posizione geografica di un dispositivo \textit{mobile}. Se compatibili con la App e con le implementazioni già in essere, è interessante capire se e quanto riescono ad ottimizzare il risparmio energetico. La pubblicazione è \textit{"Energy-Accuracy Trade-off for Continuous Mobile Device Location"; Kaisen Lin, Aman Kansal, Dimitrios Lymberopoulos, Feng Zhao; MobiSys '10 Proceedings of the 8th international conference on Mobile systems, applications, and services; ISBN: 978-1-60558-985-5}
+Durante la scrittura di questa tesi ed i test finali sono state individuate diverse tecniche, ulteriori o alternative, di ottimizzazione \cite{altrepub} per il monitoraggio continuo della posizione geografica di un dispositivo \textit{mobile}. Se compatibili con la App e con le implementazioni già in essere, è interessante capire se e quanto riescono ad ottimizzare ulteriormente il risparmio energetico.
+
+\refstepcounter{chapter}
+
+\begin{thebibliography}{9}
+
+\bibitem{introdseismo}
+	Stein, Seth; Wysession, Michael (2009). An Introduction to Seismology, Earthquakes, and Earth Structure. John Wiley \& Sons. ISBN 978-1444311310
+
+\bibitem{eqpred}
+	Uyeda, Seiya; Nagao, Toshiyasu; Kamogawa, Masashi (2009-05-29), "Short-term earthquake prediction: Current status of seismo-electromagnetics", Tectonophysics, 470 (3–4): 205–213
+
+\bibitem{alessamato}
+	Alessandro Amato (2016). Sotto i nostri piedi. Codice edizioni, Torino. ISBN 978-8875785727
+
+\bibitem{jma}
+	JMA, Japan Meteorological Agency, \url{http://www.jma.go.jp/jma/en/Publications/publications.html}
+
+\bibitem{eewapp}
+	Olson, Michael; Liu Annie; Faulkner Matthew; Chandy K. Mani; "Rapid Detection of Rare Geospatial Events: Earthquake Warning Applications" in DEBS '11, pp. 89-100, July 2011, ISBN 978-1-4503-0423-8
+
+\bibitem{finazzi}
+	Francesco Finazzi, Alessandro Fassò; "A statistical approach to crowdsourced smartphone-based earthquake early warning systems"; Stochastic Environmental Research and Risk Assessment.  doi:10.1007/s00477-016-1240-8
+
+\bibitem{gyroman}
+	L3G4200D Gyroscope datasheet, \url{https://cdn.sparkfun.com/datasheets/Sensors/Gyros/3-Axis/CD00265057.pdf}
+
+\bibitem{accelman}
+	ADXL345 Accelerometer datasheet, \url{http://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf}
+
+\bibitem{ivlatb}
+	ISIDe (\textit{Italian Seismological Instrumental and parametric Data-base}) data for \textit{IV.LATB} sensor, \url{http://iside.rm.ingv.it/iside/standard/info_stazione.jsp?page=sta&sta=1651&lang=it}
+
+\bibitem{doze}
+	Understading Doze, Android Developers documentation, \url{https://developer.android.com/training/monitoring-device-state/doze-standby.html}
+
+\bibitem{http}
+	RFC 7230, Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing
+
+\bibitem{mqtt}
+	MQTT Version 3.1.1 protocol specification, \url{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.pdf}
+
+\bibitem{activitylifecycle}
+	Activity-lifecycle concepts, Android Developers documentation, \url{https://developer.android.com/guide/components/activities/activity-lifecycle.html}
+
+\bibitem{onlinealg}
+	Richard M. Karp, "On-Line Algorithms versus Off-Line Algorithms: How Much is it Worth to Know the Future?", July 1992, ICSI TR-92-044
+
+\bibitem{onlineavg}
+	Algorithms for calculating variance, Wikipedia, \url{https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance}
+
+\bibitem{altrepub}
+	"Energy-Accuracy Trade-off for Continuous Mobile Device Location"; Kaisen Lin, Aman Kansal, Dimitrios Lymberopoulos, Feng Zhao; MobiSys '10 Proceedings of the 8th international conference on Mobile systems, applications, and services; ISBN: 978-1-60558-985-5
+
+\end{thebibliography}
 
 \begin{appendices}
 \chapter{Diagramma di flusso completo del servizio}
