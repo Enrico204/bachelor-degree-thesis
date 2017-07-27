@@ -40,25 +40,28 @@
 \maketitle
 \cleardoublepage
 
-\vspace*{10cm}
-\begin{flushright}
-\textsl{A mio nonno Guido, fiero internauta ed utilizzatore di un Tablet 10'' ad ottant'anni.}
-\end{flushright}
-
-\cleardoublepage
-
-% rest of the document
-\LARGE \textsl{Ringraziamenti}
-
-\normalsize
-[...]
-
-\cleardoublepage
+%\vspace*{10cm}
+%\begin{flushright}
+%\textsl{...}
+%\end{flushright}
+%\cleardoublepage
 
 % rest of the document
 \begin{abstract}
 	\thispagestyle{plain}
-	Sommario della tesi.
+	L'oggetto della tesi è lo studio (e l'applicazione) di modifiche al codice dell'applicazione per Android chiamata \textbf{SeismoCloud}, modifiche che hanno lo scopo di migliorare il funzionamento e ridurre lo spreco di risorse. In un momento in cui gli \textit{smartphones}, pur essendo carichi di processori potenti e più capacità, fanno fatica a contenere ogni \textit{app} che l'utilizzatore installa ed arrivare a fine giornata \textit{carichi}, \textbf{è di vitale importanza utilizzare al meglio le risorse a bordo del telefono}: la batteria in primis, ma anche il tempo di CPU, la memoria occupata e la connessione alla rete Internet.
+	
+	\medskip
+	
+	L'applicazione \textit{SeismoCloud} è mediamente più ``vorace" di risorse rispetto alla media delle altre applicazioni; il motivo è il suo scopo: è parte fondamentale di un sistema di rilevamento terremoti, in inglese \textit{Earthquake Early Warning system}, capace di individuare i terremoti nell'istante in cui emergono in superficie, e di avvertire le popolazioni vicine. Per far questo, la \textit{app} è dotata \textbf{di un servizio attivo in background}, che ha lo scopo di individuare le scosse di terremoto presenti dove il telefono è posizionato.
+	
+	\medskip
+	
+	Fare una analisi accurata delle risorse necessarie, in fase di progettazione di sistemi come questi, non è facile: la velocità con cui gli \textit{smartphones} acquistano funzionalità e cambiano il modello di utilizzo è elevata, ed inoltre alcune implementazioni algoritmiche possono dare risultati inaspettati, vista la grande differenza tra un dispositivo ed un altro. Ecco quindi che una fase di studio parallela allo sviluppo è stata d'aiuto per rendere più efficiente il codice scritto (anche grazie ai test effettuati su un numero di dispositivi differenti).
+	
+	\medskip
+	
+	La tesi è divisa in 4 parti fondamentali: lo studio sull'\textbf{ottimizzazione energetica}, ovvero come evitare di consumare batteria pur mantenendo attive le funzionalità utili; lo studio sull'\textbf{ottimizzazione dell'uso della rete Internet}, visto che ha impatto sia sulle reti dati ``a consumo", sia sulla stessa batteria (per il consumo delle antenne); dopodiché sono presenti ottimizzazioni algoritmiche che hanno \textbf{diminuito il carico sulla CPU e sulla memoria} del telefono; ed infine abbiamo \textbf{integrato un processo di sviluppo che permette di monitorare (ed evitare, se possibile) problemi} che potrebbero sfociare in un errato consumo di risorse.
 \end{abstract}
 \cleardoublepage
 
@@ -1198,56 +1201,94 @@ Nonostante la \textit{virtual machine} Android sia notevolmente migliorata nel t
 Durante la scrittura di questa tesi ed i test finali sono state individuate diverse tecniche, ulteriori o alternative, di ottimizzazione \cite{altrepub} per il monitoraggio continuo della posizione geografica di un dispositivo \textit{mobile}. Se compatibili con la App e con le implementazioni già in essere, è interessante capire se e quanto riescono ad ottimizzare ulteriormente il risparmio energetico.
 
 \refstepcounter{chapter}
+\chapter*{Ringraziamenti}
+
+Sono tante le persone che ho incontrato nel mio percorso universitario, sia dentro che fuori le mura de \textit{La Sapienza}, e che hanno contribuito, direttamente o indirettamente, allo sviluppo di questa tesi.
+
+\medskip
+
+Vorrei iniziare ringraziando, prima di tutto, il relatore di questa tesi, il \textbf{Prof.~Emanuele Panizzi}, poiché è suo il merito di aver iniziato un progetto così innovativo, e di avermi coinvolto. Senza di lui, questo progetto e questa tesi non esisterebbero. Un contributo importante, per questo progetto, è da riconoscere anche al \textbf{Dr.~Salvatore Barba} e al \textbf{Dr.~Valerio De Rubeis}, entrambi ricercatori dell'Istituto Nazionale di Geofisica e Vulcanologia, per la componente sismologica.
+
+\medskip
+
+Fondamentale è stato il contributo di tanti ragazzi, ``colleghi", che ho incontrato nel tempo: \textit{Mario}, \textit{Marco}, \textit{Lorenzo} e \textit{Giulio } del primo gruppo di \textit{SeismoCloud}. \textit{Alessio}, per i tanti consigli che mi ha regalato. Ed in special modo \textit{Beatrice}, a cui devo molto.
+
+\medskip
+
+Un ringraziamento speciale, per avermi sempre sostenuto, va alla mia amica \textit{Raffaella}. Senza di lei non sarei arrivato dove sono ora.
+
+\medskip
+
+Non posso non ringraziare la mia famiglia, che mi è stata accanto in questi anni. Infine, ma non meno importanti, ringrazio gli amici, i conoscenti, il mio amico ed ex-collega \textit{Sandro} e tante altre persone che hanno contribuito a questo percorso.
+
+\cleardoublepage
+
+\refstepcounter{chapter}
 
 \begin{thebibliography}{9}
 
 \bibitem{introdseismo}
-	Stein, Seth; Wysession, Michael (2009). An Introduction to Seismology, Earthquakes, and Earth Structure. John Wiley \& Sons. ISBN 978-1444311310
+	\textbf{An Introduction to Seismology, Earthquakes, and Earth Structure}. \\
+	Seth Stein; Michael Wysession (2009). John Wiley \& Sons. ISBN 978-1444311310
 
 \bibitem{eqpred}
-	Uyeda, Seiya; Nagao, Toshiyasu; Kamogawa, Masashi (2009-05-29), "Short-term earthquake prediction: Current status of seismo-electromagnetics", Tectonophysics, 470 (3–4): 205–213
+	\textbf{Short-term earthquake prediction: Current status of seismo-electromagnetics}. \\
+	Seiya Uyeda; Toshiyasu Nagao; Masashi Kamogawa (2009-05-29), Tectonophysics, 470 (3–4): 205-213
 
 \bibitem{alessamato}
-	Alessandro Amato (2016). Sotto i nostri piedi. Codice edizioni, Torino. ISBN 978-8875785727
+	\textbf{Sotto i nostri piedi}. \\
+	Alessandro Amato (2016). Codice edizioni, Torino. ISBN 978-8875785727
 
 \bibitem{jma}
-	JMA, Japan Meteorological Agency, \url{http://www.jma.go.jp/jma/en/Publications/publications.html}
+	\textbf{JMA, Japan Meteorological Agency}. \\
+	\url{http://www.jma.go.jp/jma/en/Publications/publications.html}
 
 \bibitem{eewapp}
-	Olson, Michael; Liu Annie; Faulkner Matthew; Chandy K. Mani; "Rapid Detection of Rare Geospatial Events: Earthquake Warning Applications" in DEBS '11, pp. 89-100, July 2011, ISBN 978-1-4503-0423-8
+	\textbf{Rapid Detection of Rare Geospatial Events: Earthquake Warning Applications}. \\
+	Michael Olson; Annie Liu; Matthew Faulkner; Chandy K. Mani; DEBS '11, pp. 89-100, July 2011, ISBN 978-1-4503-0423-8
 
 \bibitem{finazzi}
-	Francesco Finazzi, Alessandro Fassò; "A statistical approach to crowdsourced smartphone-based earthquake early warning systems"; Stochastic Environmental Research and Risk Assessment.  doi:10.1007/s00477-016-1240-8
+	\textbf{A statistical approach to crowdsourced smartphone-based earthquake early warning systems} \\
+	Francesco Finazzi, Alessandro Fassò; Stochastic Environmental Research and Risk Assessment.  doi:10.1007/s00477-016-1240-8
 
 \bibitem{gyroman}
-	L3G4200D Gyroscope datasheet, \url{https://cdn.sparkfun.com/datasheets/Sensors/Gyros/3-Axis/CD00265057.pdf}
+	\textbf{L3G4200D Gyroscope datasheet} \\
+	\url{https://cdn.sparkfun.com/datasheets/Sensors/Gyros/3-Axis/CD00265057.pdf}
 
 \bibitem{accelman}
-	ADXL345 Accelerometer datasheet, \url{http://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf}
+	\textbf{ADXL345 Accelerometer datasheet} \\
+	\url{http://www.analog.com/media/en/technical-documentation/data-sheets/ADXL345.pdf}
 
 \bibitem{ivlatb}
-	ISIDe (\textit{Italian Seismological Instrumental and parametric Data-base}) data for \textit{IV.LATB} sensor, \url{http://iside.rm.ingv.it/iside/standard/info_stazione.jsp?page=sta&sta=1651&lang=it}
+	\textbf{ISIDe (\textit{Italian Seismological Instrumental and parametric Data-base})} \\
+	\textit{IV.LATB} sensor technical specifications, \url{http://iside.rm.ingv.it/iside/standard/info_stazione.jsp?page=sta&sta=1651&lang=it}
 
 \bibitem{doze}
-	Understading Doze, Android Developers documentation, \url{https://developer.android.com/training/monitoring-device-state/doze-standby.html}
+	\textbf{Understading Doze}. \\
+	Android Developers documentation, \url{https://developer.android.com/training/monitoring-device-state/doze-standby.html}
 
 \bibitem{http}
-	RFC 7230, Hypertext Transfer Protocol (HTTP/1.1): Message Syntax and Routing
+	\textbf{RFC 7230, Hypertext Transfer Protocol (HTTP/1.1)}: Message Syntax and Routing
 
 \bibitem{mqtt}
-	MQTT Version 3.1.1 protocol specification, \url{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.pdf}
+	\textbf{MQTT Version 3.1.1 protocol specification}. \\
+	\url{http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.pdf}
 
 \bibitem{activitylifecycle}
-	Activity-lifecycle concepts, Android Developers documentation, \url{https://developer.android.com/guide/components/activities/activity-lifecycle.html}
+	\textbf{Activity-lifecycle concepts}. \\
+	Android Developers documentation, \url{https://developer.android.com/guide/components/activities/activity-lifecycle.html}
 
 \bibitem{onlinealg}
-	Richard M. Karp, "On-Line Algorithms versus Off-Line Algorithms: How Much is it Worth to Know the Future?", July 1992, ICSI TR-92-044
+	\textbf{On-Line Algorithms versus Off-Line Algorithms: How Much is it Worth to Know the Future?} \\
+	Richard M. Karp, July 1992, ICSI TR-92-044
 
 \bibitem{onlineavg}
-	Algorithms for calculating variance, Wikipedia, \url{https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance}
+	\textbf{Algorithms for calculating variance}. \\
+	Wikipedia, \url{https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance}
 
 \bibitem{altrepub}
-	"Energy-Accuracy Trade-off for Continuous Mobile Device Location"; Kaisen Lin, Aman Kansal, Dimitrios Lymberopoulos, Feng Zhao; MobiSys '10 Proceedings of the 8th international conference on Mobile systems, applications, and services; ISBN: 978-1-60558-985-5
+	\textbf{Energy-Accuracy Trade-off for Continuous Mobile Device Location}. \\
+	Kaisen Lin, Aman Kansal, Dimitrios Lymberopoulos, Feng Zhao; MobiSys '10 Proceedings of the 8th international conference on Mobile systems, applications, and services; ISBN: 978-1-60558-985-5
 
 \end{thebibliography}
 
