@@ -40,14 +40,12 @@
 \maketitle
 \cleardoublepage
 
-%\vspace*{10cm}
-%\begin{flushright}
-%\textsl{A mio nonno Guido, fiero internauta ed utilizzatore di un Tablet 10'' ad ottant'anni.}
+\vspace*{10cm}
+\begin{flushright}
+\textsl{A mio nonno Guido, fiero internauta ed utilizzatore di un Tablet 10'' ad ottant'anni.}
+\end{flushright}
 
-%\textsl{Alla mia famiglia, che tutt'ora non ha ben capito quello che faccio nella vita.}
-%\end{flushright}
-
-%\cleardoublepage
+\cleardoublepage
 
 % rest of the document
 \LARGE \textsl{Ringraziamenti}
@@ -419,7 +417,7 @@ else
 
 Una seconda analisi ha riguardato il sotto-sistema \textbf{Doze} introdotto in \textbf{Android 6.0}: l'obiettivo di \textit{Doze} è di bloccare (a schermo spento) l'esecuzione delle applicazioni e disattivare le connessioni esterne, a scopo di risparmio energetico, anche se hanno ottenuto WakeLocks o altri meccanismi che tengono accesa la CPU. Poiché, in molti casi, queste applicazioni eseguono in background attività \textit{rimandabile}, \textbf{il sistema effettua delle accensioni ad intervalli regolari}, chiamate \textit{finestre di manutenzione}: in queste finestre temporali le app vengono riaccese ed il sistema si riconnette alle reti mobili. Ovviamente nel nostro caso questo rappresenta un problema, poiché la rilevazione deve avvenire sempre. Viene quindi richiesto al sotto-sistema \textit{Doze}, in fase di avvio, l'inserimento della nostra App nella lista delle eccezioni per questo algoritmo (tramite le API di Android).
 
-Dopodiché si è provveduto ad effettuare uno studio approfondito meglio specificato nella sezione \ref{section:batteria}.
+Dopodiché si è provveduto ad effettuare uno studio approfondito meglio specificato nella sezione \ref{section:curvascarica}.
 
 \paragraph{Conclusioni} Abbiamo quindi definito una serie di variabili che compongono il nostro \textbf{contesto di attivazione}, ovvero:
 
@@ -483,6 +481,7 @@ Move_Backoff;
 \clearpage
 
 \section{La comunicazione con il front-end}
+\label{section:frontend}
 
 Sebbene l'ottimizzazione del front-end (nell'uso delle risorse e nell'interazione con l'utente) non sia lo scopo di questa tesi, ci sono alcuni aspetti inseriti nel funzionamento interno dell'interfaccia grafica che prevedono uno scambio di informazioni (e, a volte, interazioni più vicolanti) con il servizio di rilevamento che gira in background.
 
@@ -502,10 +501,10 @@ Sebbene l'ottimizzazione del front-end (nell'uso delle risorse e nell'interazion
 \item Servizio in \textbf{MOVE\_BACKOFF} in caso di localizzazione o rete assente, con il testo relativo
 \end{itemize}
 
-Con le nuove ottimizzazioni inserite nei paragrafi precedenti, tuttavia, \textbf{il servizio non è sempre disponibile}: ad esempio in caso di batteria bassa (o sotto la soglia di scarica, sezione \ref{section:batteria}), o più semplicemente quando l'utente apre la app mentre ha il telefono in mano, il servizio risulterà fermo (per effetto dei \textbf{contesti di attivazione}, sezione \ref{section:contesti}). Poiché è importante che il servizio abbia un funzionamento coerente con i criteri di risparmio energetico che ci siamo prefissati, ma nello stesso tempo è importante fornire all'utente una informazione utile, è stata introdotta anche la seguente modifica, ai contesti di attivazione sopra citati, che include questi vincoli:
+Con le nuove ottimizzazioni inserite nei paragrafi precedenti, tuttavia, \textbf{il servizio non è sempre disponibile}: ad esempio in caso di batteria bassa (o sotto la soglia di scarica, sezione \ref{section:curvascarica}), o più semplicemente quando l'utente apre la app mentre ha il telefono in mano, il servizio risulterà fermo (per effetto dei \textbf{contesti di attivazione}, sezione \ref{section:contesti}). Poiché è importante che il servizio abbia un funzionamento coerente con i criteri di risparmio energetico che ci siamo prefissati, ma nello stesso tempo è importante fornire all'utente una informazione utile, è stata introdotta anche la seguente modifica, ai contesti di attivazione sopra citati, che include questi vincoli:
 
 \begin{itemize}
-\item Il passaggio da \textbf{MOVE} a \textbf{MOVE\_BACKOFF}, nei casi di \textbf{batteria bassa} (sotto la curva di scarica\footnote{Vedi sezione \ref{section:batteria}} o $<= 15\%$) o di \textbf{permanenza nello stato di MOVE}, avviene solo se la app è chiusa (ed è quindi attivo solo il servizio in background)
+\item Il passaggio da \textbf{MOVE} a \textbf{MOVE\_BACKOFF}, nei casi di \textbf{batteria bassa} (sotto la curva di scarica\footnote{Vedi sezione \ref{section:curvascarica}} o $<= 15\%$) o di \textbf{permanenza nello stato di MOVE}, avviene solo se la app è chiusa (ed è quindi attivo solo il servizio in background)
 \item Se il servizio è spento (è già in \textbf{MOVE\_BACKOFF}) viene attivato
 \end{itemize}
 
@@ -585,7 +584,7 @@ L3G4200D\footnote{\url{https://cdn.sparkfun.com/datasheets/Sensors/Gyros/3-Axis/
 \end{table}
 
 \section{La curva di scarica}
-\label{section:batteria}
+\label{section:curvascarica}
 
 Una risorsa molto importante, dal punto di vista degli utenti, è la batteria: mentre i vecchi telefoni avevano una autonomia di giorni se non settimane, i nuovi smartphones spesso richiedono una o più ricariche al giorno. L'obiettivo quindi è quello di portare il servizio di rilevamento dell'applicazione SeismoCloud ad impattare il meno possibile sul consumo totale, anche sacrificando periodi di rilevazione. Il motivo di questa scelta è semplice: un impatto ridotto dal punto di vista energetico può portare l'applicazione ad essere installata su più dispositivi, compensando il tempo di attività che verrebbe a mancare con l'introduzione dell'algoritmo esposto in questa sezione.
 
@@ -688,6 +687,7 @@ public static boolean shouldProceedWithService(Context ctx) {
 Nell'ambiente \textit{mobile} un problema fondamentale con cui gli sviluppatori di \textit{app} si devono confrontare è l'affidabilità e le caratteristiche della connessione alla rete Internet. Su un dispositivo Android, sia esso smartphone o tablet, la connessione può arrivare tramite una rete Wi-Fi (IEEE 802.11a/b/g/n), oppure tramite rete cellulare attraverso reti che vanno dalla seconda generazione (EDGE) alla quarta generazione (LTE). La differenza notevole di caratteristiche tra le tecnologie, unita alla copertura non omogenea delle varie reti, obbliga gli sviluppatori a prendere delle decisioni implementative che siano in grado di sopportare e/o recuperare dalle mancanze temporanee dovute al \textit{roaming} sia tra reti mobile, es. tra HDSPA e LTE, sia con il Wi-Fi.
 
 \section{Message Queue Telemetry Transport}
+\label{section:mqtt}
 
 \paragraph{Obiettivo} Lo studio di questa sezione si è concentrato sul come ridurre al minimo i problemi legati alla perdita di dati durante il roaming, in particolare per i dati del servizio di rilevamento. Lo status attuale, al momento dell'analisi, prevedeva l'utilizzo di chiamate HTTP (ovvero che sfruttavano l'\textit{HyperText Transfer Protocol}\footnote{L'HyperText Transfer Protocol è lo standard per la navigazione web: i browser (Mozilla Firefox, Google Chrome) sono esempi di "client HTTP"}) verso il server SeismoCloud per le API del servizio in background, con il passaggio dei dati (da e verso il telefono) in queste richieste.
 
@@ -801,6 +801,7 @@ Come si evince dalla tabella \ref{table:mqttdiff}, ci sono diversi vantaggi nell
 \pagebreak
 
 \section{Pushback}
+\label{section:pushback}
 
 \begin{wrapfigure}{r}{0.30\textwidth}
 \includegraphics[width=0.30\textwidth]{app/hsit}
@@ -946,6 +947,7 @@ if (MySeismoService.isServiceOn() && service != null) {
 \end{listing}
 
 \section{Calcolo media e varianza online}
+\label{section:onlinealg}
 
 L'algoritmo di rilevamento specificato nella sezione~\ref{section:algoritmo} fa utilizzo della media e della varianza dei valori rilevati. Poiché la rilevazione viene fatta ogni $20ms$, ogni secondo di attività comporta la memorizzazione di 50 valori che, al netto dei puntatori e di altri riferimenti del runtime di Android, vuol dire un incremento minimo di 400 bytes/s, ovvero di 24KB al minuto. Inoltre, aggiornare la media ogni volta che si aggiunge un valore vuol dire eseguire una iterazione (tra tutti i valori memorizzati) per la somma della media, e una seconda iterazione per il calcolo dello scarto quadratico medio, con un tempo complessivo di $\Theta(nm)$ per ogni valore rilevato (50 volte al secondo).
 
@@ -978,6 +980,7 @@ L'occupazione di memoria, grazie all'utilizzo di questo algoritmo, è costante n
 Una buona ottimizzazione è sicuramente salutare per un software, ma non dobbiamo dimenticarci che \textit{l'ottimizzazione non è un prodotto, ma un processo}. Dobbiamo quindi assicurarci che il nostro lavoro non vada perduto nel quotidiano, cercando metodi che ci aiutano ad applicare correttamente le \textit{best practices} e allo stesso tempo notificarci dei problemi, possibilmente nel modo più rapido e automatico possibile (così da concentrarci sui veri problemi).
 
 \section{Android Annotations}
+\label{section:aa}
 
 \begin{flushright}
 ``\textit{If debugging is the process of removing software bugs, then programming must be the process of putting them in.}" \\ Edsger Dijkstra
@@ -1107,6 +1110,7 @@ Grazie ad ACRAFlask il \textit{team} di sviluppo è in grado di identificare per
 \clearpage
 
 \section{Continuous Integration}
+\label{section:ci}
 
 Poiché l'ottimizzazione non è un prodotto ma un processo, si è deciso di creare una \textit{pipeline}, ovvero una serie di processi, per iniziare con un processo di \textit{continuous integration}. La \textit{pipeline} di \textit{continuous integration} che abbiamo scelto di implementare prevede alcuni step: la creazione di un \textit{repository centrale} di codice gestito tramite un sistema di controllo versione (VCS); la generazione di build automatiche; l'analisi statica del codice e l'implementazione di test strumentali.
 
@@ -1146,15 +1150,6 @@ Quando un passo fallisce, vengono notificati gli sviluppatori. Inoltre si mantie
 \centering
 \includegraphics[width=0.9\textwidth]{dev/ci}
 \caption{Visione d'insieme del sistema di \textit{continuous integration}}
-\end{figure}
-
-\clearpage
-
-\begin{figure}[ht]
-\centering
-\caption{Diagramma di flusso del servizio SeismoCloud}
-\label{fig:serviceflowdiagram}
-\includegraphics[width=\textwidth]{SeismoCloud_flowdiag}
 \end{figure}
 
 \chapter{Conclusioni}
@@ -1201,5 +1196,13 @@ Nonostante la \textit{virtual machine} Android sia notevolmente migliorata nel t
 
 Durante la scrittura di questa tesi ed i test finali è stata individuata una pubblicazione del 2010 che riporta interessanti tecniche di ottimizzazione (diverse da quelle implementate in questa tesi) per il monitoraggio continuo della posizione geografica di un dispositivo \textit{mobile}. Se compatibili con la App e con le implementazioni già in essere, è interessante capire se e quanto riescono ad ottimizzare il risparmio energetico. La pubblicazione è \textit{"Energy-Accuracy Trade-off for Continuous Mobile Device Location"; Kaisen Lin, Aman Kansal, Dimitrios Lymberopoulos, Feng Zhao; MobiSys '10 Proceedings of the 8th international conference on Mobile systems, applications, and services; ISBN: 978-1-60558-985-5}
 
+\begin{appendices}
+\chapter{Diagramma di flusso completo del servizio}
+\begin{figure}[ht]
+\centering
+\label{fig:serviceflowdiagram}
+\includegraphics[width=0.8\textwidth]{SeismoCloud_flowdiag}
+\end{figure}
+\end{appendices}
 
 \end{document}
