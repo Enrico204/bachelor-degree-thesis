@@ -953,9 +953,9 @@ if (MySeismoService.isServiceOn() && service != null) {
 \section{Calcolo media e varianza online}
 \label{section:onlinealg}
 
-L'algoritmo di rilevamento specificato nella sezione~\ref{section:algoritmo} fa utilizzo della media e della varianza dei valori rilevati. Poiché la rilevazione viene fatta ogni $20ms$, ogni secondo di attività comporta la memorizzazione di 50 valori che, al netto dei puntatori e di altri riferimenti del runtime di Android, vuol dire un incremento minimo di 400 bytes/s, ovvero di 24KB al minuto. Inoltre, aggiornare la media ogni volta che si aggiunge un valore vuol dire eseguire una iterazione (tra tutti i valori memorizzati) per la somma della media, e una seconda iterazione per il calcolo dello scarto quadratico medio, con un tempo complessivo di $\Theta(nm)$ per ogni valore rilevato (50 volte al secondo).
+L'algoritmo di rilevamento specificato nella sezione~\ref{section:algoritmo} fa utilizzo della media e della varianza dei valori rilevati. Poiché la rilevazione viene fatta ogni $20ms$, ogni secondo di attività comportebbe la memorizzazione di 50 valori che, al netto dei puntatori e di altri riferimenti del runtime di Android, vorrebbe dire un incremento minimo di 400 bytes/s, ovvero di 24KB al minuto. Inoltre, aggiornare la media ogni volta che si aggiunge un valore avrebbe voluto dire eseguire una iterazione (tra tutti i valori memorizzati) per la somma della media, e una seconda iterazione per il calcolo dello scarto quadratico medio. Il costo totale per ogni valore, in termini sia di processore che di RAM, sarebbe quindi di $O(n)$ (con $n$ numero degli ultimi valori considerati per la media).
 
-\paragraph{Algoritmi \textit{online}} Per ridurre il consumo di memoria ed l'utilizzo della CPU per il ricalcolo della media ad ogni valore, si è utilizzato un algoritmo definito \textit{online}\footnote{Un algoritmo viene definito \textit{online} se è in grado di processare un oggetto di input per volta (mantenendo l'invariante che il risultato rappresenta il valore atteso), potenzialmente per un numero infinito di oggetti. \cite{onlinealg}}, che effettua il calcolo della media e dello scarto quadratico medio al momento, e non richiede la memorizzazione di tutti i valori. Questo è possibile grazie alla definizione e all'utilizzo delle relazioni di ricorrenza per la media (formula~\ref{eq:avgrec}) e per lo scarto quadratico medio (formula~\ref{eq:sqmrec}) \cite{onlineavg}.
+\paragraph{Algoritmi \textit{online}} Per ridurre il consumo di memoria ed l'utilizzo della CPU per il ricalcolo della media ad ogni valore, si è utilizzato un algoritmo \textit{online}\cite{onlinealg} che effettua il calcolo della media e dello scarto quadratico medio \textit{al momento}, e non richiede la memorizzazione di tutti i valori. Questo è possibile grazie alla definizione e all'utilizzo delle relazioni di ricorrenza per la media (formula~\ref{eq:avgrec}) e per lo scarto quadratico medio (formula~\ref{eq:sqmrec}), definite da Welford e Knuth\cite{onlineavgknuth}.
 
 \begin{equation}
 \Delta = Acceleration - M_{i-1}
@@ -977,7 +977,7 @@ dove: \begin{itemize}
 \item $\sigma_i \in Z^+$ è lo scarto quadratico medio
 \end{itemize}
 
-L'occupazione di memoria, grazie all'utilizzo di questo algoritmo, è costante nel tempo. Inoltre, la complessità di questo algoritmo è $\Theta(1)$.
+L'occupazione di memoria, grazie all'utilizzo di questo algoritmo, è costante nel tempo. Inoltre, la complessità computazionale di questo algoritmo è $\Theta(1)$ (ad ogni rilevazione).
 
 \chapter{Ottimizzazione in fase di sviluppo}
 
@@ -1282,9 +1282,9 @@ Non posso non ringraziare la mia famiglia, che mi è stata accanto in questi ann
 	\textbf{On-Line Algorithms versus Off-Line Algorithms: How Much is it Worth to Know the Future?} \\
 	Richard M. Karp, July 1992, ICSI TR-92-044
 
-\bibitem{onlineavg}
-	\textbf{Algorithms for calculating variance}. \\
-	Wikipedia, \url{https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance}
+\bibitem{onlineavgknuth}
+	\textbf{The Art of Computer Programming, volume 2: Seminumerical Algorithms}. 3rd edition, page 232 \\
+	Donald E. Knuth; 1997; Addison-Wesley Longman Publishing Co., Inc., Boston, MA, USA; ISBN: 0-201-89684-2
 
 \bibitem{altrepub}
 	\textbf{Energy-Accuracy Trade-off for Continuous Mobile Device Location}. \\
