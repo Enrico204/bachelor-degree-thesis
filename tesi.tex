@@ -31,8 +31,8 @@
 
 
 \begin{document}
-  
-  
+
+
 \frontmatter
 
 
@@ -50,17 +50,17 @@
 \begin{abstract}
 	\thispagestyle{plain}
 	L'oggetto della tesi è lo studio (e l'applicazione) di modifiche al codice dell'applicazione per Android chiamata \textbf{SeismoCloud}, modifiche che hanno lo scopo di migliorare il funzionamento e ridurre lo spreco di risorse. In un momento in cui gli \textit{smartphones}, pur essendo carichi di processori potenti e più capacità, fanno fatica a contenere ogni \textit{app} che l'utilizzatore installa ed arrivare a fine giornata \textit{carichi}, \textbf{è di vitale importanza utilizzare al meglio le risorse a bordo del telefono}: la batteria in primis, ma anche il tempo di CPU, la memoria occupata e la connessione alla rete Internet.
-	
+
 	\medskip
-	
+
 	L'applicazione \textit{SeismoCloud} è mediamente più ``vorace" di risorse rispetto alla media delle altre applicazioni; il motivo è il suo scopo: è parte fondamentale di un sistema di rilevamento terremoti, in inglese \textit{Earthquake Early Warning system}, capace di individuare i terremoti nell'istante in cui emergono in superficie, e di avvertire le popolazioni vicine. Per far questo, la \textit{app} è dotata \textbf{di un servizio attivo in background}, che ha lo scopo di individuare le scosse di terremoto presenti dove il telefono è posizionato.
-	
+
 	\medskip
-	
+
 	Fare una analisi accurata delle risorse necessarie, in fase di progettazione di sistemi come questi, non è facile: la velocità con cui gli \textit{smartphones} acquistano funzionalità e cambiano il modello di utilizzo è elevata, ed inoltre alcune implementazioni algoritmiche possono dare risultati inaspettati, vista la grande differenza tra un dispositivo ed un altro. Ecco quindi che una fase di studio parallela allo sviluppo è stata d'aiuto per rendere più efficiente il codice scritto (anche grazie ai test effettuati su un numero di dispositivi differenti).
-	
+
 	\medskip
-	
+
 	La tesi è divisa in 4 parti fondamentali: lo studio sull'\textbf{ottimizzazione energetica}, ovvero come evitare di consumare batteria pur mantenendo attive le funzionalità utili; lo studio sull'\textbf{ottimizzazione dell'uso della rete Internet}, visto che ha impatto sia sulle reti dati ``a consumo", sia sulla stessa batteria (per il consumo delle antenne); dopodiché sono presenti ottimizzazioni algoritmiche che hanno \textbf{diminuito il carico sulla CPU e sulla memoria} del telefono; ed infine abbiamo \textbf{integrato un processo di sviluppo che permette di monitorare (ed evitare, se possibile) problemi} che potrebbero sfociare in un errato consumo di risorse.
 \end{abstract}
 \cleardoublepage
@@ -743,7 +743,7 @@ Connection: close
 
 Come è ben visibile da una richiesta HTTP di una delle \textit{Application Program Interface} di comunicazione smartphone-server (listato \ref{listing:httpreq}) e dalla relativa risposta (listato \ref{listing:httpresp}), molte di queste informazioni sono ridondanti ed inutili: la struttura \textit{human-readable} di HTTP è ovviamente un vantaggio in fase di scrittura delle implementazioni, o in fase di debug dei software, \textbf{ma sicuramente non è ottima per il trasferimento ottimizzato dei dati}. Inoltre, la natura \textit{richiesta/risposta}, con la creazione di una nuova connessione ad ogni nuova richiesta, non favorisce l'utilizzo in ambienti dove il tempo è una componente essenziale e dove le informazioni potrebbero transitare solo in un verso (ad esempio, una segnalazione di onda sismica dallo smartphone) ma non necessariamente sempre nello stesso (ad esempio, il server deve poter segnalare l'evento sismico allo smartphone).
 
-\pagebreak 
+\pagebreak
 
 E' stata realizzata, quindi, una ricerca di un nuovo protocollo basata sui seguenti parametri:
 \begin{itemize}
@@ -953,9 +953,9 @@ if (MySeismoService.isServiceOn() && service != null) {
 \section{Calcolo media e varianza online}
 \label{section:onlinealg}
 
-L'algoritmo di rilevamento specificato nella sezione~\ref{section:algoritmo} fa utilizzo della media e della varianza dei valori rilevati. Poiché la rilevazione viene fatta ogni $20ms$, ogni secondo di attività comportebbe la memorizzazione di 50 valori che, al netto dei puntatori e di altri riferimenti del runtime di Android, vorrebbe dire un incremento minimo di 400 bytes/s, ovvero di 24KB al minuto. Inoltre, aggiornare la media ogni volta che si aggiunge un valore avrebbe voluto dire eseguire una iterazione (tra tutti i valori memorizzati) per la somma della media, e una seconda iterazione per il calcolo dello scarto quadratico medio. Il costo totale per ogni valore, in termini sia di processore che di RAM, sarebbe quindi di $O(n)$ (con $n$ numero degli ultimi valori considerati per la media).
+L'algoritmo di rilevamento specificato nella sezione~\ref{section:algoritmo} fa utilizzo della media e della varianza dei valori rilevati. Poiché la rilevazione viene fatta ogni $20ms$, ogni secondo di attività comportebbe la memorizzazione di 50 valori che, al netto dei puntatori e di altri riferimenti del runtime di Android, vorrebbe dire un incremento minimo di 400 bytes/s, ovvero di 24KB al minuto. Inoltre, aggiornare la media ogni volta che si aggiunge un valore avrebbe voluto dire eseguire una iterazione (tra tutti i valori memorizzati) per la somma della media, e una seconda iterazione per la varianza. Il costo totale per ogni valore, in termini sia di processore che di RAM, sarebbe quindi di $O(n)$ (con $n$ numero degli ultimi valori considerati per la media).
 
-\paragraph{Algoritmi \textit{online}} Per ridurre il consumo di memoria ed l'utilizzo della CPU per il ricalcolo della media ad ogni valore, si è utilizzato un algoritmo \textit{online}\cite{onlinealg} che effettua il calcolo della media e dello scarto quadratico medio \textit{al momento}, e non richiede la memorizzazione di tutti i valori. Questo è possibile grazie alla definizione e all'utilizzo delle relazioni di ricorrenza per la media (formula~\ref{eq:avgrec}) e per lo scarto quadratico medio (formula~\ref{eq:sqmrec}), definite da Welford e Knuth\cite{onlineavgknuth}.
+\paragraph{Algoritmi \textit{online}} Per ridurre il consumo di memoria ed l'utilizzo della CPU per il ricalcolo della media ad ogni valore, si è utilizzato un algoritmo \textit{online}\cite{onlinealg} che effettua il calcolo della media e della varianza \textit{al momento}, e non richiede la memorizzazione di tutti i valori. Questo è possibile grazie alla definizione e all'utilizzo delle relazioni di ricorrenza per la media (formula~\ref{eq:avgrec}) e per la varianza (formula~\ref{eq:sqmrec}), definite da Welford e Knuth\cite{onlineavgknuth}.
 
 \begin{equation}
 \Delta = Acceleration - M_{i-1}
@@ -974,7 +974,7 @@ dove: \begin{itemize}
 \item $|detections| \in N^+, |detections| > 0$ rappresenta il numero di rilevazioni fatte fin'ora
 \item $\Delta \in Z^+$ rappresenta la differenza tra l'accelerazione e la media attuale
 \item $M_i \in Z^+$ è la media dei valori delle rilevazioni
-\item $\sigma_i \in Z^+$ è lo scarto quadratico medio
+\item $\sigma_i \in Z^+$, $\sigma_i / (n - 1)$ è la varianza
 \end{itemize}
 
 L'occupazione di memoria, grazie all'utilizzo di questo algoritmo, è costante nel tempo. Inoltre, la complessità computazionale di questo algoritmo è $\Theta(1)$ (ad ogni rilevazione).
@@ -1014,7 +1014,7 @@ In Android, ad esempio, quando è necessario leggere le informazioni passate dal
                gobble=0,
                frame=lines,
                framesep=2mm]{java}
-               
+
 public class SurveyActivity extends AppCompatActivity {
 	private String param1;
 	private String param2;
@@ -1023,7 +1023,7 @@ public class SurveyActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_survey);
-		
+
 		Intent in = getIntent();
 		if (in == null) {
 			// Gestione dell'errore
